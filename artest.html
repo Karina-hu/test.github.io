@@ -150,53 +150,57 @@
                             loop: true">
         </a-sphere>
 
-        <!-- Vector A (зеленый вектор) -->
-        <a-cylinder id="vectorA" 
-                    position="2 0 0" 
+        <!-- Vector A group -->
+        <a-entity id="vectorAGroup">
+            <a-cylinder id="vectorA" 
+                        position="2 0 0" 
+                        rotation="0 0 -90" 
+                        radius="0.08" 
+                        height="4" 
+                        color="#4CAF50"
+                        shadow="cast: true">
+            </a-cylinder>
+            <a-cone id="arrowA" 
+                    position="4 0 0" 
                     rotation="0 0 -90" 
-                    radius="0.08" 
-                    height="4" 
-                    color="#4CAF50"
+                    radius-bottom="0.2" 
+                    height="0.6" 
+                    color="#2E7D32"
                     shadow="cast: true">
-        </a-cylinder>
-        <a-cone id="arrowA" 
-                position="4 0 0" 
-                rotation="0 0 -90" 
-                radius-bottom="0.2" 
-                height="0.6" 
-                color="#2E7D32"
-                shadow="cast: true">
-        </a-cone>
-        <a-text id="labelA"
-                mixin="vector-text"
-                value="a⃗"
-                position="4.5 0.5 0"
-                text="color: #4CAF50; width: 10; font: roboto">
-        </a-text>
+            </a-cone>
+            <a-text id="labelA"
+                    mixin="vector-text"
+                    value="a⃗"
+                    position="4.5 0.5 0"
+                    text="color: #4CAF50; width: 10; font: roboto">
+            </a-text>
+        </a-entity>
 
-        <!-- Vector B (синий вектор) -->
-        <a-cylinder id="vectorB" 
-                    position="1.5 1.73 0" 
-                    rotation="0 0 -60" 
-                    radius="0.08" 
-                    height="3.46" 
-                    color="#2196F3"
+        <!-- Vector B group -->
+        <a-entity id="vectorBGroup">
+            <a-cylinder id="vectorB" 
+                        position="2 0 0" 
+                        rotation="0 0 -90" 
+                        radius="0.08" 
+                        height="4" 
+                        color="#2196F3"
+                        shadow="cast: true">
+            </a-cylinder>
+            <a-cone id="arrowB" 
+                    position="4 0 0" 
+                    rotation="0 0 -90" 
+                    radius-bottom="0.2" 
+                    height="0.6" 
+                    color="#1565C0"
                     shadow="cast: true">
-        </a-cylinder>
-        <a-cone id="arrowB" 
-                position="3 3.46 0" 
-                rotation="0 0 -60" 
-                radius-bottom="0.2" 
-                height="0.6" 
-                color="#1565C0"
-                shadow="cast: true">
-        </a-cone>
-        <a-text id="labelB"
-                mixin="vector-text"
-                value="b⃗"
-                position="3.5 4 0"
-                text="color: #2196F3; width: 10; font: roboto">
-        </a-text>
+            </a-cone>
+            <a-text id="labelB"
+                    mixin="vector-text"
+                    value="b⃗"
+                    position="4.5 0.5 0"
+                    text="color: #2196F3; width: 10; font: roboto">
+            </a-text>
+        </a-entity>
 
         <!-- Проекция вектора B на вектор A -->
         <a-cylinder id="projection" 
@@ -290,7 +294,7 @@
         let lengthA = 4;
         let lengthB = 4;
 
-        // Получаем элементы
+        // Получаем элементы управления
         const angleSlider = document.getElementById('angleSlider');
         const lengthASlider = document.getElementById('lengthASlider');
         const lengthBSlider = document.getElementById('lengthBSlider');
@@ -301,6 +305,7 @@
         const dotProductResult = document.getElementById('dotProductResult');
 
         // A-Frame элементы
+        let vectorAGroup, vectorBGroup;
         let vectorA, arrowA, labelA;
         let vectorB, arrowB, labelB;
         let projection, perpendicular;
@@ -309,12 +314,21 @@
         // Инициализация после загрузки A-Frame
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => {
+                // Получаем группы векторов
+                vectorAGroup = document.getElementById('vectorAGroup');
+                vectorBGroup = document.getElementById('vectorBGroup');
+                
+                // Элементы вектора A
                 vectorA = document.getElementById('vectorA');
                 arrowA = document.getElementById('arrowA');
                 labelA = document.getElementById('labelA');
+                
+                // Элементы вектора B
                 vectorB = document.getElementById('vectorB');
                 arrowB = document.getElementById('arrowB');
                 labelB = document.getElementById('labelB');
+                
+                // Остальные элементы
                 projection = document.getElementById('projection');
                 perpendicular = document.getElementById('perpendicular');
                 angleTorus = document.getElementById('angleTorus');
@@ -345,14 +359,10 @@
         });
 
         function updateVectors() {
-            if (!vectorA || !vectorB) return;
+            if (!vectorAGroup || !vectorBGroup) return;
 
             // Конвертируем угол в радианы
             const angleRad = (currentAngle * Math.PI) / 180;
-            
-            // Позиции концов векторов
-            const endA = { x: lengthA, y: 0, z: 0 };
-            const endB = { x: lengthB * Math.cos(angleRad), y: lengthB * Math.sin(angleRad), z: 0 };
             
             // Обновляем вектор A
             vectorA.setAttribute('position', `${lengthA/2} 0 0`);
@@ -360,18 +370,22 @@
             arrowA.setAttribute('position', `${lengthA} 0 0`);
             labelA.setAttribute('position', `${lengthA + 0.5} 0.5 0`);
             
-            // Обновляем вектор B
-            const centerB = { x: endB.x/2, y: endB.y/2, z: 0 };
-            const rotationB = -currentAngle;
+            // Обновляем вектор B как единую группу
+            // Поворачиваем всю группу вектора B на нужный угол
+            vectorBGroup.setAttribute('rotation', `0 0 ${currentAngle}`);
             
-            vectorB.setAttribute('position', `${centerB.x} ${centerB.y} ${centerB.z}`);
-            vectorB.setAttribute('rotation', `0 0 ${rotationB}`);
+            // Устанавливаем длину вектора B внутри группы
+            vectorB.setAttribute('position', `${lengthB/2} 0 0`);
             vectorB.setAttribute('height', lengthB);
+            arrowB.setAttribute('position', `${lengthB} 0 0`);
+            labelB.setAttribute('position', `${lengthB + 0.5} 0.5 0`);
             
-            arrowB.setAttribute('position', `${endB.x} ${endB.y} ${endB.z}`);
-            arrowB.setAttribute('rotation', `0 0 ${rotationB}`);
-            
-            labelB.setAttribute('position', `${endB.x + 0.5} ${endB.y + 0.5} ${endB.z}`);
+            // Вычисляем конечную позицию вектора B для других элементов
+            const endB = { 
+                x: lengthB * Math.cos(angleRad), 
+                y: lengthB * Math.sin(angleRad), 
+                z: 0 
+            };
             
             // Обновляем проекцию
             const projectionLength = lengthB * Math.cos(angleRad);

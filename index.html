@@ -125,7 +125,7 @@
                 </div>
                 
                 <div style="text-align: center;">
-                    <a href="demo.html" class="btn btn-demo" onclick="startARDemo()">📱 Запустити AR демо</a>
+                    <a href="./artest.html" class="btn btn-demo" onclick="startARDemo()">📱 Запустити AR демо</a>
                     <a href="#markers" class="btn btn-secondary" onclick="showMarkers()">🎯 Показати маркери</a>
                     <a href="#examples" class="btn">📖 Приклади векторів</a>
                 </div>
@@ -329,86 +329,5 @@
             100% { transform: rotate(360deg); }
         }
     </style>
-
-    <script>
-        // AR Demo Functions
-        function startARDemo() {
-            const modal = document.getElementById('ar-demo-modal');
-            modal.style.display = 'block';
-            
-            // Simulate AR loading
-            setTimeout(() => {
-                alert('AR демо буде запущено в повній версії проєкту!\n\nДля тестування:\n1. Роздрукуйте маркери нижче\n2. Відкрийте demo.html файл\n3. Наведіть камеру на маркери');
-                closeARDemo();
-            }, 2000);
-        }
-        
-        function closeARDemo() {
-            document.getElementById('ar-demo-modal').style.display = 'none';
-        }
-        
-        function showMarkers() {
-            const section = document.getElementById('marker-section');
-            section.style.display = section.style.display === 'none' ? 'block' : 'none';
-            section.scrollIntoView({ behavior: 'smooth' });
-        }
-        
-        // Vector calculation examples
-        function calculateVectorOperations() {
-            // Example vectors
-            const vectorA = { x: 3, y: 4, z: 0 };
-            const vectorB = { x: 1, y: 2, z: 3 };
-            
-            // Addition
-            const addition = {
-                x: vectorA.x + vectorB.x,
-                y: vectorA.y + vectorB.y,
-                z: vectorA.z + vectorB.z
-            };
-            
-            // Dot product
-            const dotProduct = vectorA.x * vectorB.x + vectorA.y * vectorB.y + vectorA.z * vectorB.z;
-            
-            // Cross product
-            const crossProduct = {
-                x: vectorA.y * vectorB.z - vectorA.z * vectorB.y,
-                y: vectorA.z * vectorB.x - vectorA.x * vectorB.z,
-                z: vectorA.x * vectorB.y - vectorA.y * vectorB.x
-            };
-            
-            console.log('Vector Operations Examples:');
-            console.log('A + B =', addition);
-            console.log('A · B =', dotProduct);
-            console.log('A × B =', crossProduct);
-        }
-        
-        // Initialize page
-        document.addEventListener('DOMContentLoaded', function() {
-            calculateVectorOperations();
-            
-            // Add some interactive effects
-            const cards = document.querySelectorAll('.card');
-            cards.forEach(card => {
-                card.addEventListener('mouseenter', function() {
-                    this.style.boxShadow = '0 15px 40px rgba(0,0,0,0.15)';
-                });
-                card.addEventListener('mouseleave', function() {
-                    this.style.boxShadow = '0 10px 30px rgba(0,0,0,0.1)';
-                });
-            });
-        });
-        
-        // Educational content helper
-        function showVectorFormula(operation) {
-            const formulas = {
-                addition: 'a⃗ + b⃗ = (ax + bx, ay + by, az + bz)',
-                dotProduct: 'a⃗ · b⃗ = axbx + ayby + azbz = |a⃗||b⃗|cos(θ)',
-                crossProduct: 'a⃗ × b⃗ = (aybz - azby, azbx - axbz, axby - aybx)',
-                magnitude: '|a⃗| = √(ax² + ay² + az²)'
-            };
-            
-            alert(`Формула ${operation}:\n${formulas[operation]}`);
-        }
-    </script>
 </body>
 </html>

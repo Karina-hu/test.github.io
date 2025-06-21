@@ -5,153 +5,423 @@
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://unpkg.com/aframe-environment-component@1.3.0/dist/aframe-environment-component.min.js"></script>
     <style>
-        .back-button {
-            position: absolute; top: 20px; left: 20px; z-index: 10; padding: 10px 20px;
-            font-size: 16px; background: rgba(0,0,0,0.5); color: white;
-            border: 2px solid #00ffff; border-radius: 5px; text-decoration: none;
-            font-family: monospace; transition: all 0.2s;
+       body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Roboto', Arial, sans-serif;
         }
-        .back-button:hover { background: #00ffff; color: black; }
+        
+        .controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(26, 26, 46, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .controls h3 {
+            margin: 0 0 15px 0;
+            color: #FFD700;
+            text-align: center;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #E0E0E0;
+        }
+        
+        input[type="range"] {
+            width: 200px;
+            margin-bottom: 5px;
+        }
+        
+        .value-display {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 8px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            color: #FFD700;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .info {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(78, 205, 196, 0.2);
+            border-radius: 5px;
+            font-size: 12px;
+            border: 1px solid rgba(78, 205, 196, 0.3);
+        }
+        
+        .dot-product-result {
+            font-size: 16px;
+            font-weight: bold;
+            color: #4ECDC4;
+            text-align: center;
+            margin-top: 10px;
     </style>
 </head>
 <body>
-    <a href="index.html" class="back-button">← НАЗАД ДО ХАБУ</a>
-    
-    <a-scene 
-        raycaster="objects: .clickable" 
-        renderer="colorManagement: true;">
+ <div class="controls">
+        <h3>Управление векторами</h3>
+        
+        <div class="control-group">
+            <label for="angleSlider">Угол между векторами (θ):</label>
+            <input type="range" id="angleSlider" min="0" max="180" value="60" step="1">
+            <div class="value-display" id="angleValue">60°</div>
+        </div>
+        
+        <div class="control-group">
+            <label for="lengthASlider">Длина вектора A:</label>
+            <input type="range" id="lengthASlider" min="1" max="6" value="4" step="0.1">
+            <div class="value-display" id="lengthAValue">4.0</div>
+        </div>
+        
+        <div class="control-group">
+            <label for="lengthBSlider">Длина вектора B:</label>
+            <input type="range" id="lengthBSlider" min="1" max="6" value="4" step="0.1">
+            <div class="value-display" id="lengthBValue">4.0</div>
+        </div>
+        
+        <div class="dot-product-result" id="dotProductResult">
+            a⃗ · b⃗ ≈ 8.00
+        </div>
+        
+        <div class="info">
+            <strong>Управление:</strong><br>
+            • Перетаскивайте слайдеры для изменения параметров<br>
+            • Мышь: поворот камеры<br>
+            • WASD: перемещение камеры
+        </div>
+    </div>
 
+    <a-scene background="color: #1a1a2e" vr-mode-ui="enabled: true">
+        <!-- Assets -->
         <a-assets>
-            <img id="table-metal" src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/assets/textures/metal/Metal_006_basecolor.jpg">
-            <a-audio id="click-sound" src="https://cdn.aframe.io/sound-effects/dist/click.mp3" preload="auto"></a-audio>
-            <a-audio id="flash-sound" src="https://cdn.aframe.io/sound-effects/dist/zap.mp3" preload="auto"></a-audio>
+            <a-mixin id="vector-text" 
+                     text="font: roboto; 
+                           color: #FFD700; 
+                           align: center;
+                           width: 8"></a-mixin>
         </a-assets>
 
-        <a-entity environment="preset: dream; skyType: atmosphere; ground: canyon; groundColor: #252525; groundColor2: #303030; dressing: none;"></a-entity>
-        <a-entity light="type: directional; castShadow: true; intensity: 0.6; position: -5 10 5;"></a-entity>
-
-        <a-camera position="0 1.6 5">
-            <a-cursor color="#00FFFF" fuse="false"></a-cursor>
+        <!-- Camera with controls -->
+        <a-camera position="0 3 10" 
+                  look-controls="enabled: true" 
+                  wasd-controls="enabled: true"
+                  cursor="rayOrigin: mouse">
         </a-camera>
 
-        <a-entity id="experiment-setup" position="0 0 -2">
-            <a-cylinder id="lab-table" position="0 0.5 0" radius="2.5" height="1"
-                        material="src: #table-metal; roughness: 0.2; metalness: 0.8;" shadow="receive: true;"></a-cylinder>
-            
-            <a-entity id="grover-bars" position="0 1.05 0"></a-entity>
-        </a-entity>
+        <!-- Lighting -->
+        <a-light type="ambient" color="#404040" intensity="0.6"></a-light>
+        <a-light type="directional" 
+                 position="3 5 4" 
+                 color="#FFF" 
+                 intensity="1.0"
+                 shadow="cast: true"></a-light>
+        <a-light type="point" 
+                 position="-3 3 3" 
+                 color="#4ECDC4" 
+                 intensity="0.7"></a-light>
 
-        <a-entity id="control-console" position="-3.5 1.0 -1">
-            <a-box class="clickable" id="action-button" position="0 0 0" color="#333" depth="0.2" height="0.4" width="1.2"
-                   material="metalness: 0.8; roughness: 0.3;" sound="on: click; src: #click-sound">
-                <a-text id="action-button-text" value="Next Step" color="#00ffff" position="0 0 0.11" align="center" width="2"></a-text>
-                <a-animation begin="click" attribute="scale" to="0.9 0.9 0.9" dur="100" dir="alternate"></a-animation>
-            </a-box>
+        <!-- Origin point -->
+        <a-sphere position="0 0 0" 
+                  radius="0.15" 
+                  color="#FFD700"
+                  shadow="cast: true"
+                  animation="property: scale; 
+                            to: 1.2 1.2 1.2; 
+                            dir: alternate; 
+                            dur: 2000; 
+                            loop: true">
+        </a-sphere>
 
-            <a-entity id="tooltip-panel" position="0 0.8 0">
-                 <a-plane width="2.5" height="1.2" color="#001a33" material="opacity: 0.7;"></a-plane>
-                 <a-text id="tooltip-text" value="System initialized in equal superposition state."
-                         color="#00ffff" width="2.3" position="0 0 0.01" align="center" wrap-count="35"></a-text>
-            </a-entity>
-        </a-entity>
+        <!-- Vector A (зеленый вектор) -->
+        <a-cylinder id="vectorA" 
+                    position="2 0 0" 
+                    rotation="0 0 -90" 
+                    radius="0.08" 
+                    height="4" 
+                    color="#4CAF50"
+                    shadow="cast: true">
+        </a-cylinder>
+        <a-cone id="arrowA" 
+                position="4 0 0" 
+                rotation="0 0 -90" 
+                radius-bottom="0.2" 
+                height="0.6" 
+                color="#2E7D32"
+                shadow="cast: true">
+        </a-cone>
+        <a-text id="labelA"
+                mixin="vector-text"
+                value="a⃗"
+                position="4.5 0.5 0"
+                text="color: #4CAF50; width: 10; font: roboto">
+        </a-text>
+
+        <!-- Vector B (синий вектор) -->
+        <a-cylinder id="vectorB" 
+                    position="1.5 1.73 0" 
+                    rotation="0 0 -60" 
+                    radius="0.08" 
+                    height="3.46" 
+                    color="#2196F3"
+                    shadow="cast: true">
+        </a-cylinder>
+        <a-cone id="arrowB" 
+                position="3 3.46 0" 
+                rotation="0 0 -60" 
+                radius-bottom="0.2" 
+                height="0.6" 
+                color="#1565C0"
+                shadow="cast: true">
+        </a-cone>
+        <a-text id="labelB"
+                mixin="vector-text"
+                value="b⃗"
+                position="3.5 4 0"
+                text="color: #2196F3; width: 10; font: roboto">
+        </a-text>
+
+        <!-- Проекция вектора B на вектор A -->
+        <a-cylinder id="projection" 
+                    position="1.5 0 0" 
+                    rotation="0 0 -90" 
+                    radius="0.05" 
+                    height="3" 
+                    color="#FF5722"
+                    material="opacity: 0.8"
+                    shadow="cast: true">
+        </a-cylinder>
+        
+        <!-- Перпендикуляр -->
+        <a-cylinder id="perpendicular" 
+                    position="3 1.73 0" 
+                    rotation="0 0 0" 
+                    radius="0.03" 
+                    height="3.46" 
+                    color="#FFC107"
+                    material="opacity: 0.6"
+                    shadow="cast: true">
+        </a-cylinder>
+
+        <!-- Угол между векторами -->
+        <a-torus id="angleTorus" 
+                 position="0 0 0" 
+                 radius="1" 
+                 radius-tubular="0.05" 
+                 segments-radial="32" 
+                 segments-tubular="8"
+                 arc="60"
+                 color="#E91E63"
+                 material="opacity: 0.7">
+        </a-torus>
+
+        <!-- Подпись угла -->
+        <a-text id="angleLabel"
+                mixin="vector-text"
+                value="θ = 60°"
+                position="1.2 0.8 0"
+                text="color: #E91E63; width: 8; font: roboto">
+        </a-text>
+
+        <!-- Формула -->
+        <a-text mixin="vector-text"
+                value="a⃗ · b⃗ = |a⃗| × |b⃗| × cos θ"
+                position="0 -2 0"
+                text="color: #FFD700; width: 12; font: roboto; align: center"
+                geometry="primitive: plane; width: 8; height: 0.8"
+                material="color: #333; transparent: true; opacity: 0.9">
+        </a-text>
+
+        <!-- Числовое значение -->
+        <a-text id="resultValue"
+                mixin="vector-text"
+                value="≈ 8.00"
+                position="0 -3 0"
+                text="color: #4ECDC4; width: 10; font: roboto; align: center">
+        </a-text>
+
+        <!-- Координатные оси -->
+        <a-cylinder position="5 0 0" 
+                    rotation="0 0 -90" 
+                    radius="0.02" 
+                    height="10" 
+                    color="#888"
+                    material="opacity: 0.3">
+        </a-cylinder>
+        <a-cylinder position="0 5 0" 
+                    rotation="0 0 0" 
+                    radius="0.02" 
+                    height="10" 
+                    color="#888"
+                    material="opacity: 0.3">
+        </a-cylinder>
+
+        <!-- Ground plane -->
+        <a-plane position="0 -3 -4" 
+                 rotation="-90 0 0" 
+                 width="20" 
+                 height="20" 
+                 color="#16213E"
+                 material="roughness: 0.8; opacity: 0.7"
+                 shadow="receive: true">
+        </a-plane>
     </a-scene>
 
-<script>
-    const C = { add: (a, b) => ({ re: a.re + b.re, im: a.im + b.im }), mul: (a, b) => ({ re: a.re * b.re - a.im * b.im, im: a.re * b.im + a.im * b.re }), abs2: (a) => a.re * a.re + a.im * a.im, from: (re, im = 0) => ({ re, im })};
-    const C_ZERO = C.from(0);
+    <script>
+        // Переменные для управления
+        let currentAngle = 60;
+        let lengthA = 4;
+        let lengthB = 4;
 
-    document.querySelector('a-scene').addEventListener('loaded', function () {
-        const tooltipText = document.querySelector('#tooltip-text');
-        const actionBtn = document.querySelector('#action-button');
-        const actionBtnText = document.querySelector('#action-button-text');
-        const groverBars = document.querySelector('#grover-bars');
-        const sceneEl = document.querySelector('a-scene');
-        sceneEl.insertAdjacentHTML('beforeend', '<a-entity id="flash-sound-entity" sound="src: #flash-sound;"></a-entity>');
-        const flashSound = document.querySelector('#flash-sound-entity');
+        // Получаем элементы
+        const angleSlider = document.getElementById('angleSlider');
+        const lengthASlider = document.getElementById('lengthASlider');
+        const lengthBSlider = document.getElementById('lengthBSlider');
+        
+        const angleValue = document.getElementById('angleValue');
+        const lengthAValue = document.getElementById('lengthAValue');
+        const lengthBValue = document.getElementById('lengthBValue');
+        const dotProductResult = document.getElementById('dotProductResult');
 
-        const N_GROVER = 8, OPTIMAL_STEPS = 4;
-        let TARGET_STATE, groverState, groverStep;
-        let barElements, currentHeights, targetHeights;
-        let isAnimating = false, animationFrameId;
-        const ANIMATION_SPEED = 0.1;
-        let isSimulationFinished = false;
+        // A-Frame элементы
+        let vectorA, arrowA, labelA;
+        let vectorB, arrowB, labelB;
+        let projection, perpendicular;
+        let angleTorus, angleLabel, resultValue;
 
-        const tutorialTexts = [
-            "Step 1: Oracle Operator.\nThe phase of the target state (green bar) is inverted to 'mark' it.",
-            "Step 2: Diffusion Operator.\nThe amplitudes are inverted about the mean, amplifying the 'marked' state's amplitude.",
-            "Step 3: Second Oracle Iteration.\nThe target is marked again to prepare for the final amplification.",
-            "Step 4: Final Diffusion.\nThe probability of measuring the target is now maximized.",
-            "Result: Optimal point reached.\nFurther iterations would cause 'over-rotation', decreasing the success probability. Press 'Reset' to run a new simulation."
-        ];
-
-        function setupNewSimulation() {
-            if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
-            isAnimating = false;
-            groverBars.innerHTML = '';
-            barElements = []; currentHeights = []; targetHeights = [];
-            TARGET_STATE = Math.floor(Math.random() * N_GROVER);
-            groverState = Array(N_GROVER).fill(C.from(1 / Math.sqrt(N_GROVER)));
-            groverStep = 0;
-            const initialHeight = C.abs2(groverState[0]) * 3 + 0.05;
-            for (let i = 0; i < N_GROVER; i++) {
-                const bar = document.createElement('a-box');
-                const materialConfig = `shader: standard; color: ${i === TARGET_STATE ? '#2ecc71' : '#0077c2'}; emissive: ${i === TARGET_STATE ? '#2ecc71' : '#001a33'}; emissiveIntensity: 0.1; roughness: 0.4; metalness: 0.5`;
-                bar.setAttribute('position', `${(i - (N_GROVER - 1) / 2) * 0.4} ${initialHeight / 2} 0`);
-                bar.setAttribute('height', initialHeight);
-                bar.setAttribute('width', 0.3); bar.setAttribute('depth', 0.3);
-                bar.setAttribute('shadow', 'cast: true'); bar.setAttribute('material', materialConfig);
-                groverBars.appendChild(bar);
-                barElements.push(bar);
-                currentHeights.push(initialHeight); targetHeights.push(initialHeight);
-            }
-        }
-
-        function animateBars() {  }
-        function startAnimation() {  }
-        function flashTargetBar() {  }
-
-        actionBtn.addEventListener('click', () => {
-            if (isAnimating) return;
-
-            if (isSimulationFinished) {
-                isSimulationFinished = false;
-                actionBtn.setAttribute('material', 'color', '#333');
-                actionBtnText.setAttribute('value', 'Next Step');
-                tooltipText.setAttribute('value', "System reset. New target selected. Ready to start.");
-                setupNewSimulation();
-            } else {
-                if (groverStep >= OPTIMAL_STEPS) return;
-
-                tooltipText.setAttribute('value', tutorialTexts[groverStep]);
-
-                if (groverStep % 2 === 0) {
-                    groverState[TARGET_STATE] = C.mul(groverState[TARGET_STATE], C.from(-1));
-                } else {
-                    const mean = groverState.reduce((s, v) => C.add(s, v), C_ZERO);
-                    mean.re /= N_GROVER; mean.im /= N_GROVER;
-                    groverState = groverState.map(v => C.add(C.mul(C.from(2), mean), C.mul(C.from(-1), v)));
-                    flashTargetBar();
-                }
-                groverStep++;
-                startAnimation();
+        // Инициализация после загрузки A-Frame
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                vectorA = document.getElementById('vectorA');
+                arrowA = document.getElementById('arrowA');
+                labelA = document.getElementById('labelA');
+                vectorB = document.getElementById('vectorB');
+                arrowB = document.getElementById('arrowB');
+                labelB = document.getElementById('labelB');
+                projection = document.getElementById('projection');
+                perpendicular = document.getElementById('perpendicular');
+                angleTorus = document.getElementById('angleTorus');
+                angleLabel = document.getElementById('angleLabel');
+                resultValue = document.getElementById('resultValue');
                 
-                if (groverStep === OPTIMAL_STEPS) {
-                    setTimeout(() => {
-                        isSimulationFinished = true;
-                        tooltipText.setAttribute('value', tutorialTexts[OPTIMAL_STEPS]);
-                        actionBtn.setAttribute('material', 'color', '#ffae42');
-                        actionBtnText.setAttribute('value', 'Reset');
-                    }, 10000);
-                }
-            }
+                updateVectors();
+            }, 1000);
         });
 
-        setupNewSimulation();
-        
-        function animateBars() { isAnimating = true; let allDone = true; for (let i = 0; i < N_GROVER; i++) { const diff = targetHeights[i] - currentHeights[i]; if (Math.abs(diff) > 0.001) { allDone = false; currentHeights[i] += diff * ANIMATION_SPEED; barElements[i].setAttribute('height', currentHeights[i]); barElements[i].object3D.position.y = currentHeights[i] / 2; } } if (allDone) { isAnimating = false; animationFrameId = null; } else { animationFrameId = requestAnimationFrame(animateBars); } }
-        function startAnimation() { for (let i = 0; i < N_GROVER; i++) { targetHeights[i] = C.abs2(groverState[i]) * 3 + 0.05; } if (!isAnimating) animateBars(); }
-        function flashTargetBar() { const targetBar = barElements[TARGET_STATE]; if (targetBar) { targetBar.setAttribute('animation__flash', { property: 'material.emissiveIntensity', to: 5, dur: 150, dir: 'alternate' }); flashSound.components.sound.playSound(); } }
-    });
-</script>
+        // Обработчики событий
+        angleSlider.addEventListener('input', function() {
+            currentAngle = parseFloat(this.value);
+            angleValue.textContent = currentAngle + '°';
+            updateVectors();
+        });
+
+        lengthASlider.addEventListener('input', function() {
+            lengthA = parseFloat(this.value);
+            lengthAValue.textContent = lengthA.toFixed(1);
+            updateVectors();
+        });
+
+        lengthBSlider.addEventListener('input', function() {
+            lengthB = parseFloat(this.value);
+            lengthBValue.textContent = lengthB.toFixed(1);
+            updateVectors();
+        });
+
+        function updateVectors() {
+            if (!vectorA || !vectorB) return;
+
+            // Конвертируем угол в радианы
+            const angleRad = (currentAngle * Math.PI) / 180;
+            
+            // Позиции концов векторов
+            const endA = { x: lengthA, y: 0, z: 0 };
+            const endB = { x: lengthB * Math.cos(angleRad), y: lengthB * Math.sin(angleRad), z: 0 };
+            
+            // Обновляем вектор A
+            vectorA.setAttribute('position', `${lengthA/2} 0 0`);
+            vectorA.setAttribute('height', lengthA);
+            arrowA.setAttribute('position', `${lengthA} 0 0`);
+            labelA.setAttribute('position', `${lengthA + 0.5} 0.5 0`);
+            
+            // Обновляем вектор B
+            const centerB = { x: endB.x/2, y: endB.y/2, z: 0 };
+            const rotationB = -currentAngle;
+            
+            vectorB.setAttribute('position', `${centerB.x} ${centerB.y} ${centerB.z}`);
+            vectorB.setAttribute('rotation', `0 0 ${rotationB}`);
+            vectorB.setAttribute('height', lengthB);
+            
+            arrowB.setAttribute('position', `${endB.x} ${endB.y} ${endB.z}`);
+            arrowB.setAttribute('rotation', `0 0 ${rotationB}`);
+            
+            labelB.setAttribute('position', `${endB.x + 0.5} ${endB.y + 0.5} ${endB.z}`);
+            
+            // Обновляем проекцию
+            const projectionLength = lengthB * Math.cos(angleRad);
+            if (projectionLength > 0) {
+                projection.setAttribute('position', `${projectionLength/2} 0 0`);
+                projection.setAttribute('height', projectionLength);
+                projection.setAttribute('visible', true);
+            } else {
+                projection.setAttribute('visible', false);
+            }
+            
+            // Обновляем перпендикуляр
+            const perpHeight = Math.abs(lengthB * Math.sin(angleRad));
+            const perpX = Math.max(0, projectionLength);
+            
+            if (perpHeight > 0.1) {
+                perpendicular.setAttribute('position', `${perpX} ${perpHeight/2} 0`);
+                perpendicular.setAttribute('height', perpHeight);
+                perpendicular.setAttribute('visible', true);
+            } else {
+                perpendicular.setAttribute('visible', false);
+            }
+            
+            // Обновляем дугу угла
+            angleTorus.setAttribute('arc', Math.min(currentAngle, 179));
+            
+            // Обновляем подпись угла
+            const labelAnglePos = {
+                x: 1.2 * Math.cos(angleRad/2),
+                y: 1.2 * Math.sin(angleRad/2),
+                z: 0
+            };
+            angleLabel.setAttribute('position', `${labelAnglePos.x} ${labelAnglePos.y} ${labelAnglePos.z}`);
+            angleLabel.setAttribute('value', `θ = ${currentAngle}°`);
+            
+            // Вычисляем скалярное произведение
+            const dotProduct = lengthA * lengthB * Math.cos(angleRad);
+            
+            // Обновляем результат
+            resultValue.setAttribute('value', `≈ ${dotProduct.toFixed(2)}`);
+            dotProductResult.innerHTML = `a⃗ · b⃗ ≈ ${dotProduct.toFixed(2)}`;
+            
+            // Изменяем цвет результата в зависимости от знака
+            let resultColor = '#4ECDC4';
+            if (dotProduct < 0) {
+                resultColor = '#FF6B6B';
+            } else if (Math.abs(dotProduct) < 0.1) {
+                resultColor = '#FFC107';
+            }
+            
+            resultValue.setAttribute('text', `color: ${resultColor}; width: 10; font: roboto; align: center`);
+        }
+    </script>
 </body>
 </html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>3D Векторы с AR</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        
+        .arjs-loader {
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+        }
+        
+        .arjs-loader div {
+            text-align: center;
+            font-size: 1.25em;
+            margin-top: 20px;
+            padding: 0 20px;
+        }
+        
+        .arjs-loader h1 {
+            color: #FFD700;
+            margin-bottom: 20px;
+        }
+        
+        .scan-marker {
+            width: 80%;
+            max-width: 300px;
+            margin: 20px auto;
+            text-align: center;
+        }
+        
+        .scan-marker img {
+            width: 100%;
+            border: 2px solid #FFD700;
+            border-radius: 5px;
+        }
+        
+        .btn {
+            background: #FFD700;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        
+        .error {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+        
+        .controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(26, 26, 46, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <!-- Индикатор загрузки AR -->
+    <div class="arjs-loader">
+        <h1>AR Векторы</h1>
+        <div id="status">Подготовка AR...</div>
+        <div class="scan-marker">
+            <p>Для работы приложения требуется доступ к камере</p>
+            <button class="btn" id="start-ar">Разрешить камеру</button>
+            <p id="error-message" class="error"></p>
+        </div>
+    </div>
+
+    <!-- AR-сцена (изначально скрыта) -->
+    <a-scene vr-mode-ui="enabled: false" embedded arjs="sourceType: webcam; debugUIEnabled: false" style="display: none;">
+        <a-marker preset="hiro">
+            <!-- Ваша 3D сцена здесь -->
+            <a-entity id="scene-content">
+                <!-- Содержимое вашей сцены -->
+                <a-light type="ambient" color="#404040"></a-light>
+                <a-light type="directional" color="#fff" intensity="0.5" position="-1 1 2"></a-light>
+                
+                <!-- Origin point -->
+                <a-sphere position="0 0 0" radius="0.15" color="#FFD700"></a-sphere>
+
+                <!-- Vector A group -->
+                <a-entity id="vectorAGroup">
+                    <a-cylinder id="vectorA" position="2 0 0" rotation="0 0 -90" radius="0.08" height="4" color="#4CAF50"></a-cylinder>
+                    <a-cone id="arrowA" position="4 0 0" rotation="0 0 -90" radius-bottom="0.2" height="0.6" color="#2E7D32"></a-cone>
+                    <a-text id="labelA" value="a⃗" position="4.5 0.5 0" color="#4CAF50"></a-text>
+                </a-entity>
+
+                <!-- Vector B group -->
+                <a-entity id="vectorBGroup">
+                    <a-cylinder id="vectorB" position="2 0 0" rotation="0 0 -90" radius="0.08" height="4" color="#2196F3"></a-cylinder>
+                    <a-cone id="arrowB" position="4 0 0" rotation="0 0 -90" radius-bottom="0.2" height="0.6" color="#1565C0"></a-cone>
+                    <a-text id="labelB" value="b⃗" position="4.5 0.5 0" color="#2196F3"></a-text>
+                </a-entity>
+            </a-entity>
+        </a-marker>
+        <a-entity camera></a-entity>
+    </a-scene>
+
+    <script>
+        // Элементы интерфейса
+        const statusElement = document.getElementById('status');
+        const errorElement = document.getElementById('error-message');
+        const startButton = document.getElementById('start-ar');
+        const arScene = document.querySelector('a-scene');
+        const loader = document.querySelector('.arjs-loader');
+        
+        // Проверяем поддержку AR
+        function checkARSupport() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                showError("Ваш браузер не поддерживает доступ к камере. Попробуйте Chrome или Safari на мобильном устройстве.");
+                return false;
+            }
+            return true;
+        }
+        
+        // Показываем ошибку
+        function showError(message) {
+            errorElement.textContent = message;
+            statusElement.textContent = "Ошибка";
+            startButton.style.display = 'none';
+        }
+        
+        // Запускаем AR
+        function startAR() {
+            statusElement.textContent = "Запрашиваем доступ к камере...";
+            
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    // Доступ получен
+                    statusElement.textContent = "Доступ к камере получен!";
+                    errorElement.textContent = "";
+                    startButton.style.display = 'none';
+                    
+                    // Показываем сцену
+                    arScene.style.display = 'block';
+                    loader.style.display = 'none';
+                    
+                    // Обработка событий AR
+                    arScene.addEventListener('arReady', function() {
+                        statusElement.textContent = "AR готов к работе! Наведите на маркер Hiro";
+                    });
+                    
+                    arScene.addEventListener('markerFound', function() {
+                        loader.style.display = 'none';
+                    });
+                    
+                    arScene.addEventListener('markerLost', function() {
+                        loader.style.display = 'flex';
+                        statusElement.textContent = "Наведите камеру на маркер Hiro";
+                    });
+                })
+                .catch(function(error) {
+                    if (error.name === 'NotAllowedError') {
+                        showError("Доступ к камере запрещен. Пожалуйста, разрешите доступ в настройках браузера и обновите страницу.");
+                    } else if (error.name === 'NotFoundError' || error.name === 'OverconstrainedError') {
+                        showError("Камера не найдена. Убедитесь, что у вас есть рабочая камера.");
+                    } else {
+                        showError("Ошибка при доступе к камере: " + error.message);
+                    }
+                });
+        }
+        
+        // Инициализация
+        if (checkARSupport()) {
+            startButton.addEventListener('click', startAR);
+            
+            // Для мобильных устройств можно сразу запрашивать доступ
+            if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
+                startAR();
+            }
+        }
+        
+        // Остальной код управления векторами...
+        let currentAngle = 60;
+        let lengthA = 4;
+        let lengthB = 4;
+        
+        function updateVectors() {
+            // Ваш существующий код обновления векторов...
+        }
+    </script>
+</body>
+</html>

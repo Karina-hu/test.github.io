@@ -128,26 +128,26 @@
             <button class="btn" id="start-ar">Разрешить камеру</button>
             <p id="error-message" class="error"></p>
         </div>
-    </div> -->
+    </div>
 
     <!-- Элементы управления -->
     <div class="controls" id="controls" style="display: none;">
         <h3>Управление векторами</h3>
         
         <div class="control-group">
-            <label>Вектор A - длина:</label>
+            <label>Вектор A - длина (1-5):</label>
             <input type="range" id="vectorA-length" min="1" max="5" step="0.1" value="3">
             <span id="vectorA-length-value">3</span>
         </div>
         
         <div class="control-group">
-            <label>Вектор B - угол:</label>
+            <label>Вектор B - угол (0-180°):</label>
             <input type="range" id="vectorB-angle" min="0" max="180" step="5" value="90">
             <span id="vectorB-angle-value">90°</span>
         </div>
         
         <div class="control-group">
-            <label>Вектор B - длина:</label>
+            <label>Вектор B - длина (1-5):</label>
             <input type="range" id="vectorB-length" min="1" max="5" step="0.1" value="3">
             <span id="vectorB-length-value">3</span>
         </div>
@@ -166,7 +166,7 @@
     <!-- AR-сцена (изначально скрыта) -->
     <a-scene vr-mode-ui="enabled: false" embedded arjs="sourceType: webcam; debugUIEnabled: false">
         <a-marker preset="hiro">
-            <a-entity id="scene-content" rotation="-90 0 0" scale="0.3 0.3 0.3">
+            <a-entity id="scene-content" rotation="-90 0 0">
                 <a-light type="ambient" color="#404040"></a-light>
                 <a-light type="directional" color="#fff" intensity="0.5" position="-1 1 2"></a-light>
                 
@@ -396,7 +396,7 @@
                 projectionB.setAttribute('visible', true);
                 
                 // Перпендикуляр от проекции B на A
-                const perpBHeight = Math.sqrt(Math.pow(vecB.x, 2) + Math.pow(vecB.y, 2) - Math.pow(projBOnALength, 2);
+                const perpBHeight = Math.sqrt(Math.pow(vecB.x, 2) + Math.pow(vecB.y, 2) - Math.pow(projBOnALength, 2));
                 const perpBX = Math.max(0, projBOnALength);
                 
                 if (perpBHeight > 0.1) {
@@ -424,7 +424,7 @@
                 projectionA.setAttribute('visible', true);
                 
                 // Перпендикуляр от проекции A на B
-                const perpAHeight = Math.sqrt(Math.pow(vecA.x, 2) + Math.pow(vecA.y, 2) - Math.pow(projAOnBLength, 2);
+                const perpAHeight = Math.sqrt(Math.pow(vecA.x, 2) + Math.pow(vecA.y, 2) - Math.pow(projAOnBLength, 2));
                 const perpAX = projAOnBPosX * 2;
                 const perpAY = projAOnBPosY * 2;
                 

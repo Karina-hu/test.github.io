@@ -94,10 +94,11 @@
 
                 <!-- Група вектора B -->
                 <a-entity id="vectorBGroup">
-                    <a-cylinder id="vectorB" position="0 1.5 0" rotation="0 0 0" radius="0.05" height="3" color="#2196F3"></a-cylinder>
-                    <a-cone id="arrowB" position="0 3 0" rotation="0 0 0" radius-bottom="0.1" height="0.4" color="#1565C0"></a-cone>
-                    <a-text id="labelB" value="b⃗" position="0.3 3.3 0" color="#2196F3" scale="2 2 2" rotation="90 0 0"></a-text>
-                    <a-text id="coordsB" value="(0.0, 3.0)" position="0.3 2.7 0" color="#2196F3" scale="1.5 1.5 1.5" rotation="90 0 0"></a-text>
+<a-entity id="vectorBGroup">
+    <a-cylinder id="vectorB" position="0 0 0" radius="0.05" height="0" color="#2196F3"></a-cylinder>
+    <a-cone id="arrowB" position="0 0 0" radius-bottom="0.1" height="0.4" color="#1565C0"></a-cone>
+    <a-text id="labelB" value="b⃗" position="0 0 0" color="#2196F3" scale="2 2 2" rotation="90 0 0"></a-text>
+    <a-text id="coordsB" value="(0.0, 0.0)" position="0 0 0" color="#2196F3" scale="1.5 1.5 1.5" rotation="90 0 0"></a-text>
                     
                     <!-- Проекція B на A -->
                     <a-cylinder id="projectionB" position="0 0 0" rotation="0 0 -90" radius="0.03" height="0" color="#2196F3" opacity="0.5"></a-cylinder>
@@ -115,14 +116,12 @@
                 <!-- Вектор суми -->
                 <a-entity id="sumVectorGroup">
                     <a-cylinder id="sumVector" position="0 0 0" rotation="0 0 0" radius="0.04" height="0" color="#9C27B0" opacity="0.7"></a-cylinder>
-                    <a-cone id="sumArrow" position="0 0 0" rotation="0 0 0" radius-bottom="0.08" height="0.3" color="#7B1FA2" opacity="0.7"></a-cone>
                     <a-text id="sumLabel" value="a⃗+b⃗" position="0 0 0" color="#9C27B0" scale="1.8 1.8 1.8" rotation="90 0 0"></a-text>
                 </a-entity>
                 
                 <!-- Вектор різниці -->
                 <a-entity id="diffVectorGroup">
                     <a-cylinder id="diffVector" position="0 0 0" rotation="0 0 0" radius="0.04" height="0" color="#FF5722" opacity="0.7"></a-cylinder>
-                    <a-cone id="diffArrow" position="0 0 0" rotation="0 0 0" radius-bottom="0.08" height="0.3" color="#E64A19" opacity="0.7"></a-cone>
                     <a-text id="diffLabel" value="a⃗-b⃗" position="0 0 0" color="#FF5722" scale="1.8 1.8 1.8" rotation="90 0 0"></a-text>
                 </a-entity>
             </a-entity>
@@ -147,7 +146,7 @@
         // Параметри векторів
         let vectorAData = { length: 3 };
         let vectorBData = { angle: 90, length: 3 };
-        
+
         // Перевіряємо підтримку AR
         function checkARSupport() {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -223,30 +222,35 @@
             coordsA.setAttribute('value', `(${vectorAData.length.toFixed(1)}, 0.0)`);
             
             // Вектор B (починається з центру)
-            const vectorB = document.getElementById('vectorB');
-            const arrowB = document.getElementById('arrowB');
-            const labelB = document.getElementById('labelB');
-            const coordsB = document.getElementById('coordsB');
-            
-            const angleRad = (vectorBData.angle * Math.PI) / 180;
-            const vectorBEndX = vectorBData.length * Math.cos(angleRad);
-            const vectorBEndY = vectorBData.length * Math.sin(angleRad);
-            
-            // Ключове виправлення для вектора B:
-            // 1. Позиція циліндра - середина між (0,0) та кінцевою точкою
-            const vectorBCenterX = vectorBEndX / 2;
-            const vectorBCenterY = vectorBEndY / 2;
-            
-            vectorB.setAttribute('position', `${vectorBCenterX} ${vectorBCenterY} 0`);
-            vectorB.setAttribute('rotation', `0 0 ${90 - vectorBData.angle}`);
-            vectorB.setAttribute('height', vectorBData.length);
-            
-            // Стрілка та підписи в кінці вектора.
-            arrowB.setAttribute('position', `${vectorBEndX} ${vectorBEndY} 0`);
-            arrowB.setAttribute('rotation', `0 0 ${90 - vectorBData.angle}`);
-            labelB.setAttribute('position', `${vectorBEndX + 0.3} ${vectorBEndY + 0.2} 0`);
-            coordsB.setAttribute('position', `${vectorBEndX + 0.3} ${vectorBEndY - 0.2} 0`);
-            coordsB.setAttribute('value', `(${vectorBEndX.toFixed(1)}, ${vectorBEndY.toFixed(1)})`);
+    function updateVectorB() {
+        const vectorB = document.getElementById('vectorB');
+        const arrowB = document.getElementById('arrowB');
+        const labelB = document.getElementById('labelB');
+        const coordsB = document.getElementById('coordsB');
+        
+        const angleRad = (vectorBData.angle * Math.PI) / 180;
+        const vectorBEndX = vectorBData.length * Math.cos(angleRad);
+        const vectorBEndY = vectorBData.length * Math.sin(angleRad);
+        
+        // Устанавливаем вектор B от (0,0) до (vectorBEndX, vectorBEndY)
+        // Центр цилиндра - середина между началом и концом
+        const vectorBCenterX = vectorBEndX / 2;
+        const vectorBCenterY = vectorBEndY / 2;
+        
+        vectorB.setAttribute('position', `${vectorBCenterX} ${vectorBCenterY} 0`);
+        vectorB.setAttribute('rotation', `0 0 ${90 - vectorBData.angle}`);
+        vectorB.setAttribute('height', vectorBData.length);
+        
+        // Стрелка и подписи в конце вектора
+        arrowB.setAttribute('position', `${vectorBEndX} ${vectorBEndY} 0`);
+        arrowB.setAttribute('rotation', `0 0 ${90 - vectorBData.angle}`);
+        labelB.setAttribute('position', `${vectorBEndX + 0.3} ${vectorBEndY + 0.2} 0`);
+        coordsB.setAttribute('position', `${vectorBEndX + 0.3} ${vectorBEndY - 0.2} 0`);
+        coordsB.setAttribute('value', `(${vectorBEndX.toFixed(1)}, ${vectorBEndY.toFixed(1)})`);
+    }
+    
+    // Инициализация вектора B
+    updateVectorB();
             
             // Оновлення проекцій
             updateProjections();

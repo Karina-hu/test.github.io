@@ -428,15 +428,15 @@
         });
         
         vectorBAngleSlider.addEventListener('input', function() {
-            vectorBData.angle = parseInt(this.value);
+            vectorBData.angle = 45;
             document.getElementById('vectorB-angle-value').textContent = vectorBData.angle + '°';
-            updateVectors();
+            updateVectorB();
         });
         
         vectorBLengthSlider.addEventListener('input', function() {
-            vectorBData.length = parseFloat(this.value);
+            vectorBData.length = 2;
             document.getElementById('vectorB-length-value').textContent = vectorBData.length;
-            updateVectors();
+            updateVectorB();
         });
         
         // Ініціалізація

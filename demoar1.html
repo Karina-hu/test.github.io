@@ -237,14 +237,168 @@
             }
         }
         
-        // Остальной код управления векторами...
+                // Переменные для управления
         let currentAngle = 60;
-        let lengthA = 4;
-        let lengthB = 4;
+        let lengthA = 2;
+        let lengthB = 2;
+        let markerVisible = false;
+
+        // Получаем элементы управления
+        const angleSlider = document.getElementById('angleSlider');
+        const lengthASlider = document.getElementById('lengthASlider');
+        const lengthBSlider = document.getElementById('lengthBSlider');
         
+        const angleValue = document.getElementById('angleValue');
+        const lengthAValue = document.getElementById('lengthAValue');
+        const lengthBValue = document.getElementById('lengthBValue');
+        const dotProductResult = document.getElementById('dotProductResult');
+        const arStatus = document.getElementById('arStatus');
+
+        // A-Frame элементы
+        let vectorAGroup, vectorBGroup;
+        let vectorA, arrowA, labelA;
+        let vectorB, arrowB, labelB;
+        let projection, perpendicular;
+        let angleTorus, angleLabel, resultValue;
+
+        // Инициализация после загрузки A-Frame
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                // Получаем группы векторов
+                vectorAGroup = document.getElementById('vectorAGroup');
+                vectorBGroup = document.getElementById('vectorBGroup');
+                
+                // Элементы вектора A
+                vectorA = document.getElementById('vectorA');
+                arrowA = document.getElementById('arrowA');
+                labelA = document.getElementById('labelA');
+                
+                // Элементы вектора B
+                vectorB = document.getElementById('vectorB');
+                arrowB = document.getElementById('arrowB');
+                labelB = document.getElementById('labelB');
+                
+                // Остальные элементы
+                projection = document.getElementById('projection');
+                perpendicular = document.getElementById('perpendicular');
+                angleTorus = document.getElementById('angleTorus');
+                angleLabel = document.getElementById('angleLabel');
+                resultValue = document.getElementById('resultValue');
+                
+                // Обработчики маркера
+                const marker = document.getElementById('markerA');
+                if (marker) {
+                    marker.addEventListener('markerFound', function() {
+                        markerVisible = true;
+                        arStatus.textContent = 'Маркер найден!';
+                        arStatus.style.backgroundColor = 'rgba(76, 175, 80, 0.8)';
+                        console.log('Marker found');
+                    });
+
+                    marker.addEventListener('markerLost', function() {
+                        markerVisible = false;
+                        arStatus.textContent = 'Поиск маркера...';
+                        arStatus.style.backgroundColor = 'rgba(244, 67, 54, 0.8)';
+                        console.log('Marker lost');
+                    });
+                }
+                
+                updateVectors();
+            }, 2000);
+        });
+
+        // Обработчики событий
+        angleSlider.addEventListener('input', function() {
+            currentAngle = parseFloat(this.value);
+            angleValue.textContent = currentAngle + '°';
+            updateVectors();
+        });
+
+        lengthASlider.addEventListener('input', function() {
+            lengthA = parseFloat(this.value);
+            lengthAValue.textContent = lengthA.toFixed(1);
+            updateVectors();
+        });
+
+        lengthBSlider.addEventListener('input', function() {
+            lengthB = parseFloat(this.value);
+            lengthBValue.textContent = lengthB.toFixed(1);
+            updateVectors();
+        });
+
         function updateVectors() {
-            // Ваш существующий код обновления векторов...
+            if (!vectorAGroup || !vectorBGroup) return;
+
+            // Конвертируем угол в радианы
+            const angleRad = (currentAngle * Math.PI) / 180;
+            
+            // Обновляем вектор A
+            vectorA.setAttribute('position', `${lengthA/2} 0 0`);
+            vectorA.setAttribute('height', lengthA);
+            arrowA.setAttribute('position', `${lengthA} 0 0`);
+            labelA.setAttribute('position', `${lengthA + 0.3} 0.3 0`);
+            
+            // Обновляем вектор B как единую группу
+            vectorBGroup.setAttribute('rotation', `0 0 ${currentAngle}`);
+            
+            // Устанавливаем длину вектора B внутри группы
+            vectorB.setAttribute('position', `${lengthB/2} 0 0`);
+            vectorB.setAttribute('height', lengthB);
+            arrowB.setAttribute('position', `${lengthB} 0 0`);
+            labelB.setAttribute('position', `${lengthB + 0.3} 0.3 0`);
+            
+            // Обновляем проекцию
+            const projectionLength = lengthB * Math.cos(angleRad);
+            if (projectionLength > 0) {
+                projection.setAttribute('position', `${projectionLength/2} 0 0`);
+                projection.setAttribute('height', projectionLength);
+                projection.setAttribute('visible', true);
+            } else {
+                projection.setAttribute('visible', false);
+            }
+            
+            // Обновляем перпендикуляр
+            const perpHeight = Math.abs(lengthB * Math.sin(angleRad));
+            const perpX = Math.max(0, projectionLength);
+            
+            if (perpHeight > 0.05) {
+                perpendicular.setAttribute('position', `${perpX} ${perpHeight/2} 0`);
+                perpendicular.setAttribute('height', perpHeight);
+                perpendicular.setAttribute('visible', true);
+            } else {
+                perpendicular.setAttribute('visible', false);
+            }
+            
+            // Обновляем дугу угла
+            angleTorus.setAttribute('arc', Math.min(currentAngle, 179));
+            
+            // Обновляем подпись угла
+            const labelAnglePos = {
+                x: 0.6 * Math.cos(angleRad/2),
+                y: 0.6 * Math.sin(angleRad/2),
+                z: 0
+            };
+            angleLabel.setAttribute('position', `${labelAnglePos.x} ${labelAnglePos.y} ${labelAnglePos.z}`);
+            angleLabel.setAttribute('value', `θ = ${currentAngle}°`);
+            
+            // Вычисляем скалярное произведение
+            const dotProduct = lengthA * lengthB * Math.cos(angleRad);
+            
+            // Обновляем результат
+            resultValue.setAttribute('value', `≈ ${dotProduct.toFixed(2)}`);
+            dotProductResult.innerHTML = `a⃗ · b⃗ ≈ ${dotProduct.toFixed(2)}`;
+            
+            // Изменяем цвет результата в зависимости от знака
+            let resultColor = '#4ECDC4';
+            if (dotProduct < 0) {
+                resultColor = '#FF6B6B';
+            } else if (Math.abs(dotProduct) < 0.1) {
+                resultColor = '#FFC107';
+            }
+            
+            resultValue.setAttribute('color', resultColor);
         }
+
     </script>
 </body>
 </html>

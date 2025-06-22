@@ -181,7 +181,7 @@
                 <!-- Vector A group -->
                 <a-entity id="vectorAGroup">
                     <a-cylinder id="vectorA" position="1.5 0 0" rotation="0 0 -90" radius="0.05" height="3" color="#4CAF50"></a-cylinder>
-                    <a-cone id="arrowA" position="3 0 0" rotation="0 0 -90" radius-bottom="0.15" height="0.4" color="#2E7D32"></a-cone>
+                    <a-cone id="arrowA" position="3 0 0" rotation="0 0 -90" radius-bottom="0.1" height="0.4" color="#2E7D32"></a-cone>
                     <a-text id="labelA" value="a⃗" position="3.3 0.3 0" color="#4CAF50" scale="2 2 2" rotation="90 0 0"></a-text>
                     <a-text id="coordsA" value="(3.0, 0.0)" position="3.3 -0.3 0" color="#4CAF50" scale="1.5 1.5 1.5" rotation="90 0 0"></a-text>
                     
@@ -193,7 +193,7 @@
                 <!-- Vector B group -->
                 <a-entity id="vectorBGroup">
                     <a-cylinder id="vectorB" position="0 1.5 0" rotation="0 0 0" radius="0.05" height="3" color="#2196F3"></a-cylinder>
-                    <a-cone id="arrowB" position="0 3 0" rotation="0 0 0" radius-bottom="0.15" height="0.4" color="#1565C0"></a-cone>
+                    <a-cone id="arrowB" position="0 3 0" rotation="0 0 0" radius-bottom="0.1" height="0.4" color="#1565C0"></a-cone>
                     <a-text id="labelB" value="b⃗" position="0.3 3.3 0" color="#2196F3" scale="2 2 2" rotation="90 0 0"></a-text>
                     <a-text id="coordsB" value="(0.0, 3.0)" position="0.3 2.7 0" color="#2196F3" scale="1.5 1.5 1.5" rotation="90 0 0"></a-text>
                     
@@ -290,23 +290,23 @@
         
 // Обновление векторов
 function updateVectors() {
-    // Вектор A (всегда горизонтальный, начинается от центра)
+    // Вектор A (горизонтальный)
     const vectorA = document.getElementById('vectorA');
     const arrowA = document.getElementById('arrowA');
     const labelA = document.getElementById('labelA');
     const coordsA = document.getElementById('coordsA');
     
-    const vectorACenter = vectorAData.length / 2;
     const vectorAEnd = vectorAData.length;
     
-    vectorA.setAttribute('position', `${vectorACenter} 0 0`);
+    // Для горизонтального вектора A смещаем цилиндр на половину длины
+    vectorA.setAttribute('position', `${vectorAData.length/2} 0 0`);
     vectorA.setAttribute('height', vectorAData.length);
     arrowA.setAttribute('position', `${vectorAEnd} 0 0`);
     labelA.setAttribute('position', `${vectorAEnd + 0.3} 0.3 0`);
     coordsA.setAttribute('position', `${vectorAEnd + 0.3} -0.3 0`);
     coordsA.setAttribute('value', `(${vectorAData.length.toFixed(1)}, 0.0)`);
     
-    // Вектор B (начинается от центра)
+    // Вектор B (начинается из центра)
     const vectorB = document.getElementById('vectorB');
     const arrowB = document.getElementById('arrowB');
     const labelB = document.getElementById('labelB');
@@ -316,10 +316,16 @@ function updateVectors() {
     const vectorBEndX = vectorBData.length * Math.cos(angleRad);
     const vectorBEndY = vectorBData.length * Math.sin(angleRad);
     
-    // Исправлено: начало вектора B всегда в точке (0, 0)
-    vectorB.setAttribute('position', '0 0 0');
+    // Ключевое исправление для вектора B:
+    // 1. Позиция цилиндра - середина между (0,0) и конечной точкой
+    const vectorBCenterX = vectorBEndX / 2;
+    const vectorBCenterY = vectorBEndY / 2;
+    
+    vectorB.setAttribute('position', `${vectorBCenterX} ${vectorBCenterY} 0`);
     vectorB.setAttribute('rotation', `0 0 ${90 - vectorBData.angle}`);
     vectorB.setAttribute('height', vectorBData.length);
+    
+    // Стрелка и подписи в конце вектора
     arrowB.setAttribute('position', `${vectorBEndX} ${vectorBEndY} 0`);
     arrowB.setAttribute('rotation', `0 0 ${90 - vectorBData.angle}`);
     labelB.setAttribute('position', `${vectorBEndX + 0.3} ${vectorBEndY + 0.2} 0`);

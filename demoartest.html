@@ -101,38 +101,38 @@
     <a-scene vr-mode-ui="enabled: false" embedded arjs="sourceType: webcam; debugUIEnabled: false" style="display: none;">
         <a-marker preset="hiro">
     <!-- Панель управления как 3D-объект -->
-            <a-entity id="controls-panel" position="-2 2.5 -5" rotation="0 0 0">
-                <a-plane color="#1a1a2e" opacity="0.9" width="3" height="4" position="0 0 0.01">
+            <a-entity id="controls-panel" position="-2 2.5 -15" rotation="0 0 0">
+                <a-plane color="#1a1a2e" opacity="0.9" width="3" height="4" position="0 0 -15.01">
                     <a-text value="Управление векторами" color="#FFD700" align="center" width="5" 
-                           position="0 1.7 0.02" scale="1.5 1.5 1"></a-text>
+                           position="0 1.7 -15.02" scale="1.5 1.5 1"></a-text>
                     
                     <!-- Угол между векторами -->
                     <a-text value="Угол между векторами (°):" color="#E0E0E0" align="left" width="2.8"
-                           position="-1.3 1.2 0.02" scale="0.8 0.8 1"></a-text>
+                           position="-1.3 1.2 -15" scale="0.8 0.8 1"></a-text>
                     <a-entity slider-control="id: angleSlider; min: 0; max: 180; step: 1; value: 60; 
-                                           width: 2.5; height: 0.1; position: 0 1 0.02"></a-entity>
+                                           width: 2.5; height: 0.1; position: 0 1 -15.02"></a-entity>
                     <a-text id="angleValue" value="60°" color="#FFD700" align="center" width="1"
-                           position="0 0.8 0.02" scale="1.2 1.2 1"></a-text>
+                           position="0 0.8 -15.02" scale="1.2 1.2 1"></a-text>
                     
                     <!-- Длина вектора A -->
                     <a-text value="Длина вектора A:" color="#E0E0E0" align="left" width="2.8"
-                           position="-1.3 0.5 0.02" scale="0.8 0.8 1"></a-text>
+                           position="-1.3 0.5 -15" scale="0.8 0.8 1"></a-text>
                     <a-entity slider-control="id: lengthASlider; min: 1; max: 6; step: 0.1; value: 4; 
-                                           width: 2.5; height: 0.1; position: 0 0.3 0.02"></a-entity>
+                                           width: 2.5; height: 0.1; position: 0 0.3 -15.02"></a-entity>
                     <a-text id="lengthAValue" value="4.0" color="#FFD700" align="center" width="1"
-                           position="0 0.1 0.02" scale="1.2 1.2 1"></a-text>
+                           position="0 0.1 -15.02" scale="1.2 1.2 1"></a-text>
                     
                     <!-- Длина вектора B -->
                     <a-text value="Длина вектора B:" color="#E0E0E0" align="left" width="2.8"
-                           position="-1.3 -0.2 0.02" scale="0.8 0.8 1"></a-text>
+                           position="-1.3 -0.2 -15" scale="0.8 0.8 1"></a-text>
                     <a-entity slider-control="id: lengthBSlider; min: 1; max: 6; step: 0.1; value: 4; 
-                                           width: 2.5; height: 0.1; position: 0 -0.5 0.02"></a-entity>
+                                           width: 2.5; height: 0.1; position: 0 -0.5 -15.02"></a-entity>
                     <a-text id="lengthBValue" value="4.0" color="#FFD700" align="center" width="1"
-                           position="0 -0.7 0.02" scale="1.2 1.2 1"></a-text>
+                           position="0 -0.7 -15" scale="1.2 1.2 1"></a-text>
                     
                     <!-- Результат -->
                     <a-text id="dotProductResult" value="a⃗ · b⃗ ≈ 8.00" color="#4ECDC4" align="center" 
-                           width="2.5" position="0 -1.2 0.02" scale="1.2 1.2 1"></a-text>
+                           width="2.5" position="0 -1.2 -15.02" scale="1.2 1.2 1"></a-text>
                 </a-plane>
             </a-entity>
 
@@ -140,23 +140,23 @@
             <a-entity id="scene-content">
                 <!-- Содержимое вашей сцены -->
                 <a-light type="ambient" color="#404040"></a-light>
-                <a-light type="directional" color="#fff" intensity="0.5" position="-1 1 2"></a-light>
+                <a-light type="directional" color="#fff" intensity="0.5" position="-1 1 -13"></a-light>
                 
                 <!-- Origin point -->
-                <a-sphere position="0 0 0" radius="0.15" color="#FFD700"></a-sphere>
+                <a-sphere position="0 0 -15" radius="0.15" color="#FFD700"></a-sphere>
 
                 <!-- Vector A group -->
                 <a-entity id="vectorAGroup">
-                    <a-cylinder id="vectorA" position="2 0 0" rotation="0 0 -90" radius="0.08" height="4" color="#4CAF50"></a-cylinder>
-                    <a-cone id="arrowA" position="4 0 0" rotation="0 0 -90" radius-bottom="0.2" height="0.6" color="#2E7D32"></a-cone>
-                    <a-text id="labelA" value="a⃗" position="4.5 0.5 0" color="#4CAF50"></a-text>
+                    <a-cylinder id="vectorA" position="2 0 -15" rotation="0 0 -90" radius="0.08" height="4" color="#4CAF50"></a-cylinder>
+                    <a-cone id="arrowA" position="4 0 -15" rotation="0 0 -90" radius-bottom="0.2" height="0.6" color="#2E7D32"></a-cone>
+                    <a-text id="labelA" value="a⃗" position="4.5 0.5 -15" color="#4CAF50"></a-text>
                 </a-entity>
 
                 <!-- Vector B group -->
                 <a-entity id="vectorBGroup">
-                    <a-cylinder id="vectorB" position="2 0 0" rotation="0 0 -90" radius="0.08" height="4" color="#2196F3"></a-cylinder>
-                    <a-cone id="arrowB" position="4 0 0" rotation="0 0 -90" radius-bottom="0.2" height="0.6" color="#1565C0"></a-cone>
-                    <a-text id="labelB" value="b⃗" position="4.5 0.5 0" color="#2196F3"></a-text>
+                    <a-cylinder id="vectorB" position="2 0 -15" rotation="0 0 -90" radius="0.08" height="4" color="#2196F3"></a-cylinder>
+                    <a-cone id="arrowB" position="4 0 -15" rotation="0 0 -90" radius-bottom="0.2" height="0.6" color="#1565C0"></a-cone>
+                    <a-text id="labelB" value="b⃗" position="4.5 0.5 -15" color="#2196F3"></a-text>
                 </a-entity>
             </a-entity>
         </a-marker>

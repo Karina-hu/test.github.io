@@ -165,7 +165,7 @@
     <!-- AR-сцена (изначально скрыта) -->
     <a-scene vr-mode-ui="enabled: false" embedded arjs="sourceType: webcam; debugUIEnabled: false">
         <a-marker preset="hiro">
-            <a-entity id="scene-content">
+            <a-entity id="scene-content" rotation="-90 0 0">
                 <a-light type="ambient" color="#404040"></a-light>
                 <a-light type="directional" color="#fff" intensity="0.5" position="-1 1 2"></a-light>
                 
@@ -182,24 +182,24 @@
                 <a-entity id="vectorAGroup">
                     <a-cylinder id="vectorA" position="1.5 0 0" rotation="0 0 -90" radius="0.05" height="3" color="#4CAF50"></a-cylinder>
                     <a-cone id="arrowA" position="3 0 0" rotation="0 0 -90" radius-bottom="0.15" height="0.4" color="#2E7D32"></a-cone>
-                    <a-text id="labelA" value="a⃗" position="3.3 0.3 0" color="#4CAF50" scale="2 2 2"></a-text>
-                    <a-text id="coordsA" value="(3.0, 0.0)" position="3.3 -0.3 0" color="#4CAF50" scale="1.5 1.5 1.5"></a-text>
+                    <a-text id="labelA" value="a⃗" position="3.3 0.3 0" color="#4CAF50" scale="2 2 2" rotation="90 0 0"></a-text>
+                    <a-text id="coordsA" value="(3.0, 0.0)" position="3.3 -0.3 0" color="#4CAF50" scale="1.5 1.5 1.5" rotation="90 0 0"></a-text>
                     
                     <!-- Projection of A onto B -->
                     <a-cylinder id="projectionA" position="0 0.75 0" rotation="0 0 0" radius="0.03" height="0" color="#4CAF50" opacity="0.5"></a-cylinder>
-                    <a-text id="projLabelA" value="proj_b(a⃗)" position="0.3 0.75 0" color="#4CAF50" scale="1.2 1.2 1.2"></a-text>
+                    <a-text id="projLabelA" value="proj_b(a⃗)" position="0.3 0.75 0" color="#4CAF50" scale="1.2 1.2 1.2" rotation="90 0 0"></a-text>
                 </a-entity>
 
                 <!-- Vector B group -->
                 <a-entity id="vectorBGroup">
                     <a-cylinder id="vectorB" position="0 1.5 0" rotation="0 0 0" radius="0.05" height="3" color="#2196F3"></a-cylinder>
                     <a-cone id="arrowB" position="0 3 0" rotation="0 0 0" radius-bottom="0.15" height="0.4" color="#1565C0"></a-cone>
-                    <a-text id="labelB" value="b⃗" position="0.3 3.3 0" color="#2196F3" scale="2 2 2"></a-text>
-                    <a-text id="coordsB" value="(0.0, 3.0)" position="0.3 2.7 0" color="#2196F3" scale="1.5 1.5 1.5"></a-text>
+                    <a-text id="labelB" value="b⃗" position="0.3 3.3 0" color="#2196F3" scale="2 2 2" rotation="90 0 0"></a-text>
+                    <a-text id="coordsB" value="(0.0, 3.0)" position="0.3 2.7 0" color="#2196F3" scale="1.5 1.5 1.5" rotation="90 0 0"></a-text>
                     
                     <!-- Projection of B onto A -->
                     <a-cylinder id="projectionB" position="0 0 0" rotation="0 0 -90" radius="0.03" height="0" color="#2196F3" opacity="0.5"></a-cylinder>
-                    <a-text id="projLabelB" value="proj_a(b⃗)" position="0.3 -0.5 0" color="#2196F3" scale="1.2 1.2 1.2"></a-text>
+                    <a-text id="projLabelB" value="proj_a(b⃗)" position="0.3 -0.5 0" color="#2196F3" scale="1.2 1.2 1.2" rotation="90 0 0"></a-text>
                 </a-entity>
                 
                 <!-- Angle arc -->
@@ -207,7 +207,7 @@
                     <a-torus id="angleTorus" position="0 0 0" radius="0.8" radius-tubular="0.02" 
                              segments-radial="32" segments-tubular="8" color="#FFD700"
                              theta-start="0" theta-length="90"></a-torus>
-                    <a-text id="angleLabel" value="90°" position="0.6 0.6 0" color="#FFD700" scale="1.8 1.8 1.8"></a-text>
+                    <a-text id="angleLabel" value="90°" position="0.6 0.6 0" color="#FFD700" scale="1.8 1.8 1.8" rotation="90 0 0"></a-text>
                 </a-entity>
             </a-entity>
         </a-marker>

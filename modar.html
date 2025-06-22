@@ -2,40 +2,18 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR 3D Модель Скалярного Произведения Векторов</title>
-    <!-- JavaScript ES6 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>3D Векторы с AR</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <!-- MathJax Script -->
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <!-- A-Frame -->
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <!-- AR.js -->
-    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
-    <!-- Three.js -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
-    
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <style>
         body {
             margin: 0;
             overflow: hidden;
-            font-family: 'Roboto', Arial, sans-serif;
+            font-family: Arial, sans-serif;
         }
         
-        .controls {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: rgba(26, 26, 46, 0.95);
-            padding: 15px;
-            border-radius: 10px;
-            color: white;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            max-width: 250px;
-        }
-
         .arjs-loader {
             height: 100%;
             width: 100%;
@@ -50,24 +28,32 @@
             flex-direction: column;
             color: white;
         }
-
+        
         .arjs-loader div {
             text-align: center;
             font-size: 1.25em;
             margin-top: 20px;
             padding: 0 20px;
         }
-
+        
         .arjs-loader h1 {
             color: #FFD700;
             margin-bottom: 20px;
         }
-
-        .error {
-            color: #ff6b6b;
-            font-weight: bold;
+        
+        .scan-marker {
+            width: 80%;
+            max-width: 300px;
+            margin: 20px auto;
+            text-align: center;
         }
-
+        
+        .scan-marker img {
+            width: 100%;
+            border: 2px solid #FFD700;
+            border-radius: 5px;
+        }
+        
         .btn {
             background: #FFD700;
             color: #000;
@@ -75,286 +61,218 @@
             padding: 10px 20px;
             border-radius: 5px;
             font-size: 16px;
-            margin-top: 20px;
+            margin: 5px;
             cursor: pointer;
         }
-
-        .scan-marker {
-            width: 80%;
-            max-width: 300px;
-            margin: 20px auto;
-            text-align: center;
-        }
-
-        .scan-marker img {
-            width: 100%;
-            border: 2px solid #FFD700;
-            border-radius: 5px;
         
-        .controls h3 {
-            margin: 0 0 10px 0;
-            color: #FFD700;
-            text-align: center;
-            font-size: 16px;
+        .error {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+        
+        .controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(26, 26, 46, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 300px;
+            font-size: 14px;
         }
         
         .control-group {
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
         
-        label {
+        .control-group label {
             display: block;
-            margin-bottom: 3px;
-            font-size: 12px;
-            color: #E0E0E0;
-        }
-        
-        input[type="range"] {
-            width: 180px;
-            margin-bottom: 3px;
-        }
-        
-        .value-display {
-            background: rgba(255, 215, 0, 0.1);
-            padding: 5px;
-            border-radius: 5px;
-            text-align: center;
-            font-weight: bold;
+            margin-bottom: 5px;
             color: #FFD700;
-            border: 1px solid rgba(255, 215, 0, 0.3);
+            font-weight: bold;
+        }
+        
+        .slider {
+            width: 100%;
+            margin: 5px 0;
+        }
+        
+        .values {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: monospace;
             font-size: 12px;
         }
         
-        .info {
-            margin-top: 10px;
-            padding: 8px;
-            background: rgba(78, 205, 196, 0.2);
-            border-radius: 5px;
-            font-size: 10px;
-            border: 1px solid rgba(78, 205, 196, 0.3);
+        .value-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 2px 0;
         }
         
-        .dot-product-result {
-            font-size: 14px;
-            font-weight: bold;
-            color: #4ECDC4;
-            text-align: center;
-            margin-top: 8px;
-        }
-
-        .ar-status {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 14px;
-            z-index: 1000;
-        }
-
-        #arjsDebugUIContainer {
+        .hidden {
             display: none !important;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                right: 20px;
+                top: auto;
+                max-width: none;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="controls">
-        <h3>Управление векторами</h3>
-        
-        <div class="control-group">
-            <label for="angleSlider">Угол между векторами (θ):</label>
-            <input type="range" id="angleSlider" min="0" max="180" value="60" step="1">
-            <div class="value-display" id="angleValue">60°</div>
-        </div>
-        
-        <div class="control-group">
-            <label for="lengthASlider">Длина вектора A:</label>
-            <input type="range" id="lengthASlider" min="0.5" max="3" value="2" step="0.1">
-            <div class="value-display" id="lengthAValue">2.0</div>
-        </div>
-        
-        <div class="control-group">
-            <label for="lengthBSlider">Длина вектора B:</label>
-            <input type="range" id="lengthBSlider" min="0.5" max="3" value="2" step="0.1">
-            <div class="value-display" id="lengthBValue">2.0</div>
-        </div>
-        
-        <div class="dot-product-result" id="dotProductResult">
-            a⃗ · b⃗ ≈ 2.00
-        </div>
-        
-        <div class="info">
-            <strong>AR Управление:</strong><br>
-            • Наведите камеру на маркер<br>
-            • Используйте слайдеры для изменения параметров
+    <!-- Индикатор загрузки AR -->
+    <div class="arjs-loader">
+        <h1>AR Векторы</h1>
+        <div id="status">Подготовка AR...</div>
+        <div class="scan-marker">
+            <p>Для работы приложения требуется доступ к камере</p>
+            <button class="btn" id="start-ar">Разрешить камеру</button>
+            <p id="error-message" class="error"></p>
         </div>
     </div>
 
-    <div class="ar-status" id="arStatus">
-        Поиск маркера...
+    <!-- Панель управления -->
+    <div class="controls hidden" id="controls">
+        <h3 style="margin-top: 0; color: #FFD700;">Управление векторами</h3>
+        
+        <div class="control-group">
+            <label>Длина вектора A: <span id="lengthAValue">4.0</span></label>
+            <input type="range" class="slider" id="lengthASlider" min="1" max="6" step="0.1" value="4">
+        </div>
+        
+        <div class="control-group">
+            <label>Длина вектора B: <span id="lengthBValue">4.0</span></label>
+            <input type="range" class="slider" id="lengthBSlider" min="1" max="6" step="0.1" value="4">
+        </div>
+        
+        <div class="control-group">
+            <label>Угол между векторами: <span id="angleValue">60°</span></label>
+            <input type="range" class="slider" id="angleSlider" min="0" max="180" step="5" value="60">
+        </div>
+        
+        <div class="control-group">
+            <button class="btn" id="showProjection">Показать проекцию</button>
+            <button class="btn" id="resetVectors">Сброс</button>
+        </div>
+        
+        <div class="values">
+            <div class="value-row">
+                <span>|a⃗|:</span>
+                <span id="dispLengthA">4.0</span>
+            </div>
+            <div class="value-row">
+                <span>|b⃗|:</span>
+                <span id="dispLengthB">4.0</span>
+            </div>
+            <div class="value-row">
+                <span>∠(a⃗,b⃗):</span>
+                <span id="dispAngle">60°</span>
+            </div>
+            <div class="value-row">
+                <span>a⃗·b⃗:</span>
+                <span id="dispDotProduct">8.0</span>
+            </div>
+            <div class="value-row">
+                <span>proj_a⃗(b⃗):</span>
+                <span id="dispProjection">2.0</span>
+            </div>
+        </div>
     </div>
 
- <a-scene vr-mode-ui="enabled: false" embedded arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: true" style="display: none;">
-        
-        <!-- AR маркер -->
-        <a-marker preset=hiro>
-            
-            <!-- Основная группа с 3D моделью -->
-            <a-entity id="mainGroup" position="0 0 0" scale="0.5 0.5 0.5">
+    <!-- AR-сцена -->
+    <a-scene vr-mode-ui="enabled: false" embedded arjs="sourceType: webcam; debugUIEnabled: false">
+        <a-marker preset="hiro">
+            <a-entity id="scene-content">
+                <!-- Освещение -->
+                <a-light type="ambient" color="#404040"></a-light>
+                <a-light type="directional" color="#fff" intensity="0.5" position="-1 1 2"></a-light>
                 
-                <!-- Центральная точка -->
-                <a-sphere position="0 0 0" 
-                          radius="0.1" 
-                          color="#FFD700"
-                          animation="property: scale; 
-                                    to: 1.2 1.2 1.2; 
-                                    dir: alternate; 
-                                    dur: 2000; 
-                                    loop: true">
-                </a-sphere>
+                <!-- Начало координат -->
+                <a-sphere position="0 0 0" radius="0.1" color="#FFD700"></a-sphere>
+                <a-text value="O" position="0.2 0.2 0" color="#FFD700" scale="0.8 0.8 0.8"></a-text>
 
-                <!-- Вектор A -->
+                <!-- Группа вектора A -->
                 <a-entity id="vectorAGroup">
-                    <a-cylinder id="vectorA" 
-                                position="1 0 0" 
-                                rotation="0 0 -90" 
-                                radius="0.05" 
-                                height="2" 
-                                color="#4CAF50">
-                    </a-cylinder>
-                    <a-cone id="arrowA" 
-                            position="2 0 0" 
-                            rotation="0 0 -90" 
-                            radius-bottom="0.12" 
-                            height="0.3" 
-                            color="#2E7D32">
-                    </a-cone>
-                    <a-text id="labelA"
-                            value="a⃗"
-                            position="2.3 0.3 0"
-                            color="#4CAF50"
-                            scale="2 2 2"
-                            align="center">
-                    </a-text>
+                    <a-cylinder id="vectorA" position="2 0 0" rotation="0 0 -90" radius="0.06" height="4" color="#4CAF50"></a-cylinder>
+                    <a-cone id="arrowA" position="4 0 0" rotation="0 0 -90" radius-bottom="0.15" height="0.4" color="#2E7D32"></a-cone>
+                    <a-text id="labelA" value="a⃗" position="4.2 0.3 0" color="#4CAF50" scale="0.8 0.8 0.8"></a-text>
                 </a-entity>
 
-                <!-- Вектор B -->
+                <!-- Группа вектора B -->
                 <a-entity id="vectorBGroup">
-                    <a-cylinder id="vectorB" 
-                                position="1 0 0" 
-                                rotation="0 0 -90" 
-                                radius="0.05" 
-                                height="2" 
-                                color="#2196F3">
-                    </a-cylinder>
-                    <a-cone id="arrowB" 
-                            position="2 0 0" 
-                            rotation="0 0 -90" 
-                            radius-bottom="0.12" 
-                            height="0.3" 
-                            color="#1565C0">
-                    </a-cone>
-                    <a-text id="labelB"
-                            value="b⃗"
-                            position="2.3 0.3 0"
-                            color="#2196F3"
-                            scale="2 2 2"
-                            align="center">
-                    </a-text>
+                    <a-cylinder id="vectorB" position="2 0 0" rotation="0 0 -90" radius="0.06" height="4" color="#2196F3"></a-cylinder>
+                    <a-cone id="arrowB" position="4 0 0" rotation="0 0 -90" radius-bottom="0.15" height="0.4" color="#1565C0"></a-cone>
+                    <a-text id="labelB" value="b⃗" position="4.2 0.3 0" color="#2196F3" scale="0.8 0.8 0.8"></a-text>
                 </a-entity>
 
-                <!-- Проекция вектора B на вектор A -->
-                <a-cylinder id="projection" 
-                            position="0.75 0 0" 
-                            rotation="0 0 -90" 
-                            radius="0.03" 
-                            height="1.5" 
-                            color="#FF5722"
-                            material="opacity: 0.8">
-                </a-cylinder>
-                
-                <!-- Перпендикуляр -->
-                <a-cylinder id="perpendicular" 
-                            position="1.5 0.87 0" 
-                            rotation="0 0 0" 
-                            radius="0.02" 
-                            height="1.73" 
-                            color="#FFC107"
-                            material="opacity: 0.6">
-                </a-cylinder>
+                <!-- Проекция вектора B на A -->
+                <a-entity id="projectionGroup" visible="false">
+                    <a-cylinder id="projectionVector" position="1 0 0" rotation="0 0 -90" radius="0.04" height="2" color="#FF9800"></a-cylinder>
+                    <a-text id="projectionLabel" value="proj_a⃗(b⃗)" position="2.2 -0.4 0" color="#FF9800" scale="0.6 0.6 0.6"></a-text>
+                    <!-- Пунктирная линия от конца B к проекции -->
+                    <a-cylinder id="projectionLine" position="2 1 0" rotation="0 0 0" radius="0.02" height="2" color="#FF9800" opacity="0.5"></a-cylinder>
+                </a-entity>
 
-                <!-- Угол между векторами -->
-                <a-torus id="angleTorus" 
-                         position="0 0 0" 
-                         radius="0.5" 
-                         radius-tubular="0.03" 
-                         segments-radial="32" 
-                         segments-tubular="8"
-                         arc="60"
-                         color="#E91E63"
-                         material="opacity: 0.7">
-                </a-torus>
-
-                <!-- Подпись угла -->
-                <a-text id="angleLabel"
-                        value="θ = 60°"
-                        position="0.6 0.4 0"
-                        color="#E91E63"
-                        scale="1.5 1.5 1.5"
-                        align="center">
-                </a-text>
-
-                <!-- Формула -->
-                <a-text value="a⃗ · b⃗ = |a⃗| × |b⃗| × cos θ"
-                        position="0 -1 0"
-                        color="#FFD700"
-                        scale="1.2 1.2 1.2"
-                        align="center">
-                </a-text>
-
-                <!-- Числовое значение -->
-                <a-text id="resultValue"
-                        value="≈ 2.00"
-                        position="0 -1.5 0"
-                        color="#4ECDC4"
-                        scale="1.5 1.5 1.5"
-                        align="center">
-                </a-text>
-
-                <!-- Координатные оси (упрощенные) -->
-                <a-cylinder position="2.5 0 0" 
-                            rotation="0 0 -90" 
-                            radius="0.01" 
-                            height="5" 
-                            color="#888"
-                            material="opacity: 0.3">
-                </a-cylinder>
-                <a-cylinder position="0 2.5 0" 
-                            rotation="0 0 0" 
-                            radius="0.01" 
-                            height="5" 
-                            color="#888"
-                            material="opacity: 0.3">
-                </a-cylinder>
+                <!-- Дуга угла -->
+                <a-entity id="angleArc">
+                    <a-torus id="angleTorus" position="0 0 0" radius="0.8" radius-tubular="0.02" color="#FFD700" 
+                             rotation="90 0 0" segments-radial="32" segments-tubular="8"></a-torus>
+                    <a-text id="angleLabel" value="60°" position="1.2 0.5 0" color="#FFD700" scale="0.6 0.6 0.6"></a-text>
+                </a-entity>
             </a-entity>
         </a-marker>
-
-        <!-- Камера -->
         <a-entity camera></a-entity>
     </a-scene>
 
     <script>
-// Элементы интерфейса
+        // Элементы интерфейса
         const statusElement = document.getElementById('status');
         const errorElement = document.getElementById('error-message');
         const startButton = document.getElementById('start-ar');
         const arScene = document.querySelector('a-scene');
         const loader = document.querySelector('.arjs-loader');
+        const controls = document.getElementById('controls');
         
-// Проверяем поддержку AR
+        // Элементы управления
+        const lengthASlider = document.getElementById('lengthASlider');
+        const lengthBSlider = document.getElementById('lengthBSlider');
+        const angleSlider = document.getElementById('angleSlider');
+        const showProjectionBtn = document.getElementById('showProjection');
+        const resetBtn = document.getElementById('resetVectors');
+        
+        // Отображение значений
+        const lengthAValue = document.getElementById('lengthAValue');
+        const lengthBValue = document.getElementById('lengthBValue');
+        const angleValue = document.getElementById('angleValue');
+        
+        // Числовые значения
+        const dispLengthA = document.getElementById('dispLengthA');
+        const dispLengthB = document.getElementById('dispLengthB');
+        const dispAngle = document.getElementById('dispAngle');
+        const dispDotProduct = document.getElementById('dispDotProduct');
+        const dispProjection = document.getElementById('dispProjection');
+        
+        // Переменные состояния
+        let lengthA = 4;
+        let lengthB = 4;
+        let angle = 60;
+        let showProjection = false;
+        let sceneReady = false;
+        
+        // Проверяем поддержку AR
         function checkARSupport() {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 showError("Ваш браузер не поддерживает доступ к камере. Попробуйте Chrome или Safari на мобильном устройстве.");
@@ -363,38 +281,219 @@
             return true;
         }
         
-// Показываем ошибку
+        // Показываем ошибку
         function showError(message) {
             errorElement.textContent = message;
             statusElement.textContent = "Ошибка";
             startButton.style.display = 'none';
+        }
         
-// Запускаем AR
+        // Функции для работы с векторами
+        function toRadians(degrees) {
+            return degrees * Math.PI / 180;
+        }
+        
+        function toDegrees(radians) {
+            return radians * 180 / Math.PI;
+        }
+        
+        function calculateDotProduct() {
+            return lengthA * lengthB * Math.cos(toRadians(angle));
+        }
+        
+        function calculateProjection() {
+            return lengthB * Math.cos(toRadians(angle));
+        }
+        
+        function updateVectors() {
+            if (!sceneReady) return;
+            
+            // Вектор A (всегда по оси X)
+            const vectorA = document.getElementById('vectorA');
+            const arrowA = document.getElementById('arrowA');
+            const labelA = document.getElementById('labelA');
+            
+            if (vectorA && arrowA && labelA) {
+                vectorA.setAttribute('height', lengthA);
+                vectorA.setAttribute('position', `${lengthA/2} 0 0`);
+                arrowA.setAttribute('position', `${lengthA} 0 0`);
+                labelA.setAttribute('position', `${lengthA + 0.3} 0.3 0`);
+            }
+            
+            // Вектор B (поворачиваем на угол)
+            const vectorBGroup = document.getElementById('vectorBGroup');
+            const vectorB = document.getElementById('vectorB');
+            const arrowB = document.getElementById('arrowB');
+            const labelB = document.getElementById('labelB');
+            
+            if (vectorBGroup && vectorB && arrowB && labelB) {
+                const angleRad = toRadians(angle);
+                const endX = lengthB * Math.cos(angleRad);
+                const endY = lengthB * Math.sin(angleRad);
+                
+                vectorB.setAttribute('height', lengthB);
+                vectorB.setAttribute('position', `${endX/2} ${endY/2} 0`);
+                vectorB.setAttribute('rotation', `0 0 ${-angle}`);
+                
+                arrowB.setAttribute('position', `${endX} ${endY} 0`);
+                arrowB.setAttribute('rotation', `0 0 ${-angle}`);
+                
+                labelB.setAttribute('position', `${endX + 0.3} ${endY + 0.3} 0`);
+            }
+            
+            // Обновляем проекцию
+            updateProjection();
+            
+            // Обновляем дугу угла
+            updateAngleArc();
+            
+            // Обновляем числовые значения
+            updateDisplay();
+        }
+        
+        function updateProjection() {
+            const projectionGroup = document.getElementById('projectionGroup');
+            if (!projectionGroup) return;
+            
+            if (showProjection) {
+                const projLength = calculateProjection();
+                const projectionVector = document.getElementById('projectionVector');
+                const projectionLine = document.getElementById('projectionLine');
+                const projectionLabel = document.getElementById('projectionLabel');
+                
+                if (projectionVector && projectionLine && projectionLabel) {
+                    // Вектор проекции
+                    projectionVector.setAttribute('height', Math.abs(projLength));
+                    projectionVector.setAttribute('position', `${Math.abs(projLength)/2} -0.2 0`);
+                    
+                    // Пунктирная линия
+                    const angleRad = toRadians(angle);
+                    const endX = lengthB * Math.cos(angleRad);
+                    const endY = lengthB * Math.sin(angleRad);
+                    const lineLength = endY;
+                    
+                    projectionLine.setAttribute('height', Math.abs(lineLength));
+                    projectionLine.setAttribute('position', `${endX} ${lineLength/2 - 0.2} 0`);
+                    
+                    // Подпись
+                    projectionLabel.setAttribute('position', `${Math.abs(projLength)/2} -0.6 0`);
+                }
+                
+                projectionGroup.setAttribute('visible', true);
+            } else {
+                projectionGroup.setAttribute('visible', false);
+            }
+        }
+        
+        function updateAngleArc() {
+            const angleTorus = document.getElementById('angleTorus');
+            const angleLabel = document.getElementById('angleLabel');
+            
+            if (angleTorus && angleLabel) {
+                // Показываем дугу только если угол больше 5 градусов
+                if (angle > 5 && angle < 175) {
+                    // Обновляем размер дуги в зависимости от угла
+                    const arcRatio = angle / 180;
+                    angleTorus.setAttribute('segments-radial', Math.max(8, Math.floor(32 * arcRatio)));
+                    
+                    // Позиция подписи угла
+                    const labelAngle = angle / 2;
+                    const labelRad = toRadians(labelAngle);
+                    const labelX = 1.2 * Math.cos(labelRad);
+                    const labelY = 1.2 * Math.sin(labelRad);
+                    
+                    angleLabel.setAttribute('position', `${labelX} ${labelY} 0`);
+                    angleLabel.setAttribute('value', `${angle}°`);
+                    
+                    document.getElementById('angleArc').setAttribute('visible', true);
+                } else {
+                    document.getElementById('angleArc').setAttribute('visible', false);
+                }
+            }
+        }
+        
+        function updateDisplay() {
+            const dotProduct = calculateDotProduct();
+            const projection = calculateProjection();
+            
+            // Обновляем слайдеры
+            lengthAValue.textContent = lengthA.toFixed(1);
+            lengthBValue.textContent = lengthB.toFixed(1);
+            angleValue.textContent = `${angle}°`;
+            
+            // Обновляем числовые значения
+            dispLengthA.textContent = lengthA.toFixed(1);
+            dispLengthB.textContent = lengthB.toFixed(1);
+            dispAngle.textContent = `${angle}°`;
+            dispDotProduct.textContent = dotProduct.toFixed(1);
+            dispProjection.textContent = projection.toFixed(1);
+        }
+        
+        // Обработчики событий
+        lengthASlider.addEventListener('input', function() {
+            lengthA = parseFloat(this.value);
+            updateVectors();
+        });
+        
+        lengthBSlider.addEventListener('input', function() {
+            lengthB = parseFloat(this.value);
+            updateVectors();
+        });
+        
+        angleSlider.addEventListener('input', function() {
+            angle = parseInt(this.value);
+            updateVectors();
+        });
+        
+        showProjectionBtn.addEventListener('click', function() {
+            showProjection = !showProjection;
+            this.textContent = showProjection ? 'Скрыть проекцию' : 'Показать проекцию';
+            updateVectors();
+        });
+        
+        resetBtn.addEventListener('click', function() {
+            lengthA = 4;
+            lengthB = 4;
+            angle = 60;
+            showProjection = false;
+            
+            lengthASlider.value = 4;
+            lengthBSlider.value = 4;
+            angleSlider.value = 60;
+            showProjectionBtn.textContent = 'Показать проекцию';
+            
+            updateVectors();
+        });
+        
+        // Запускаем AR
         function startAR() {
             statusElement.textContent = "Запрашиваем доступ к камере...";
             
             navigator.mediaDevices.getUserMedia({ video: true })
                 .then(function(stream) {
-                    // Доступ получен
                     statusElement.textContent = "Доступ к камере получен!";
                     errorElement.textContent = "";
                     startButton.style.display = 'none';
                     
-                    // Показываем сцену
+                    // Показываем сцену и панель управления
                     arScene.style.display = 'block';
-                    loader.style.display = 'none';
                     
-                    // Обработка событий AR
-                    arScene.addEventListener('arReady', function() {
-                        statusElement.textContent = "AR готов к работе! Наведите на маркер Hiro";
-                    });
-                    
-                    arScene.addEventListener('markerFound', function() {
+                    // Ждем готовности сцены
+                    arScene.addEventListener('loaded', function() {
+                        sceneReady = true;
+                        updateVectors();
+                        controls.classList.remove('hidden');
                         loader.style.display = 'none';
                     });
                     
+                    arScene.addEventListener('markerFound', function() {
+                        if (loader.style.display !== 'none') {
+                            loader.style.display = 'none';
+                        }
+                    });
+                    
                     arScene.addEventListener('markerLost', function() {
-                        loader.style.display = 'flex';
+                        // Не показываем загрузчик при потере маркера, только обновляем статус
                         statusElement.textContent = "Наведите камеру на маркер Hiro";
                     });
                 })
@@ -415,181 +514,8 @@
             
             // Для мобильных устройств можно сразу запрашивать доступ
             if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
-                startAR();
+                setTimeout(startAR, 1000);
             }
-        }
-        // Переменные для управления
-        let currentAngle = 60;
-        let lengthA = 2;
-        let lengthB = 2;
-        let markerVisible = false;
-
-        // Получаем элементы управления
-        const angleSlider = document.getElementById('angleSlider');
-        const lengthASlider = document.getElementById('lengthASlider');
-        const lengthBSlider = document.getElementById('lengthBSlider');
-        
-        const angleValue = document.getElementById('angleValue');
-        const lengthAValue = document.getElementById('lengthAValue');
-        const lengthBValue = document.getElementById('lengthBValue');
-        const dotProductResult = document.getElementById('dotProductResult');
-        const arStatus = document.getElementById('arStatus');
-
-        // A-Frame элементы
-        let vectorAGroup, vectorBGroup;
-        let vectorA, arrowA, labelA;
-        let vectorB, arrowB, labelB;
-        let projection, perpendicular;
-        let angleTorus, angleLabel, resultValue;
-
-        // Инициализация после загрузки A-Frame
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(() => {
-                // Получаем группы векторов
-                vectorAGroup = document.getElementById('vectorAGroup');
-                vectorBGroup = document.getElementById('vectorBGroup');
-                
-                // Элементы вектора A
-                vectorA = document.getElementById('vectorA');
-                arrowA = document.getElementById('arrowA');
-                labelA = document.getElementById('labelA');
-                
-                // Элементы вектора B
-                vectorB = document.getElementById('vectorB');
-                arrowB = document.getElementById('arrowB');
-                labelB = document.getElementById('labelB');
-                
-                // Остальные элементы
-                projection = document.getElementById('projection');
-                perpendicular = document.getElementById('perpendicular');
-                angleTorus = document.getElementById('angleTorus');
-                angleLabel = document.getElementById('angleLabel');
-                resultValue = document.getElementById('resultValue');
-                
-                // Обработчики маркера
-                const marker = document.getElementById('markerA');
-                if (marker) {
-                    marker.addEventListener('markerFound', function() {
-                        markerVisible = true;
-                        arStatus.textContent = 'Маркер найден!';
-                        arStatus.style.backgroundColor = 'rgba(76, 175, 80, 0.8)';
-                        console.log('Marker found');
-                    });
-
-                    marker.addEventListener('markerLost', function() {
-                        markerVisible = false;
-                        arStatus.textContent = 'Поиск маркера...';
-                        arStatus.style.backgroundColor = 'rgba(244, 67, 54, 0.8)';
-                        console.log('Marker lost');
-                    });
-                }
-                
-                updateVectors();
-            }, 2000);
-        });
-
-        // Обработчики событий
-        angleSlider.addEventListener('input', function() {
-            currentAngle = parseFloat(this.value);
-            angleValue.textContent = currentAngle + '°';
-            updateVectors();
-        });
-
-        lengthASlider.addEventListener('input', function() {
-            lengthA = parseFloat(this.value);
-            lengthAValue.textContent = lengthA.toFixed(1);
-            updateVectors();
-        });
-
-        lengthBSlider.addEventListener('input', function() {
-            lengthB = parseFloat(this.value);
-            lengthBValue.textContent = lengthB.toFixed(1);
-            updateVectors();
-        });
-
-        function updateVectors() {
-            if (!vectorAGroup || !vectorBGroup) return;
-
-            // Конвертируем угол в радианы
-            const angleRad = (currentAngle * Math.PI) / 180;
-            
-            // Обновляем вектор A
-            vectorA.setAttribute('position', `${lengthA/2} 0 0`);
-            vectorA.setAttribute('height', lengthA);
-            arrowA.setAttribute('position', `${lengthA} 0 0`);
-            labelA.setAttribute('position', `${lengthA + 0.3} 0.3 0`);
-            
-            // Обновляем вектор B как единую группу
-            vectorBGroup.setAttribute('rotation', `0 0 ${currentAngle}`);
-            
-            // Устанавливаем длину вектора B внутри группы
-            vectorB.setAttribute('position', `${lengthB/2} 0 0`);
-            vectorB.setAttribute('height', lengthB);
-            arrowB.setAttribute('position', `${lengthB} 0 0`);
-            labelB.setAttribute('position', `${lengthB + 0.3} 0.3 0`);
-            
-            // Обновляем проекцию
-            const projectionLength = lengthB * Math.cos(angleRad);
-            if (projectionLength > 0) {
-                projection.setAttribute('position', `${projectionLength/2} 0 0`);
-                projection.setAttribute('height', projectionLength);
-                projection.setAttribute('visible', true);
-            } else {
-                projection.setAttribute('visible', false);
-            }
-            
-            // Обновляем перпендикуляр
-            const perpHeight = Math.abs(lengthB * Math.sin(angleRad));
-            const perpX = Math.max(0, projectionLength);
-            
-            if (perpHeight > 0.05) {
-                perpendicular.setAttribute('position', `${perpX} ${perpHeight/2} 0`);
-                perpendicular.setAttribute('height', perpHeight);
-                perpendicular.setAttribute('visible', true);
-            } else {
-                perpendicular.setAttribute('visible', false);
-            }
-            
-            // Обновляем дугу угла
-            angleTorus.setAttribute('arc', Math.min(currentAngle, 179));
-            
-            // Обновляем подпись угла
-            const labelAnglePos = {
-                x: 0.6 * Math.cos(angleRad/2),
-                y: 0.6 * Math.sin(angleRad/2),
-                z: 0
-            };
-            angleLabel.setAttribute('position', `${labelAnglePos.x} ${labelAnglePos.y} ${labelAnglePos.z}`);
-            angleLabel.setAttribute('value', `θ = ${currentAngle}°`);
-            
-            // Вычисляем скалярное произведение
-            const dotProduct = lengthA * lengthB * Math.cos(angleRad);
-            
-            // Обновляем результат
-            resultValue.setAttribute('value', `≈ ${dotProduct.toFixed(2)}`);
-            dotProductResult.innerHTML = `a⃗ · b⃗ ≈ ${dotProduct.toFixed(2)}`;
-            
-            // Изменяем цвет результата в зависимости от знака
-            let resultColor = '#4ECDC4';
-            if (dotProduct < 0) {
-                resultColor = '#FF6B6B';
-            } else if (Math.abs(dotProduct) < 0.1) {
-                resultColor = '#FFC107';
-            }
-            
-            resultValue.setAttribute('color', resultColor);
-        }
-
-        // Запрос разрешения на камеру для мобильных устройств
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then(function(stream) {
-                    stream.getTracks().forEach(track => track.stop());
-                })
-                .catch(function(err) {
-                    console.log("Ошибка доступа к камере: " + err);
-                    arStatus.textContent = 'Нет доступа к камере';
-                });
         }
     </script>
 </body>

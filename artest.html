@@ -192,8 +192,8 @@
 
                 <!-- Група вектора B -->
                 <a-entity id="vectorBGroup">
-                    <a-cylinder id="vectorB" position="0 1.5 0" rotation="0 0 0" radius="0.05" height="3" color="#2196F3"></a-cylinder>
-                    <a-cone id="arrowB" position="0 3 0" rotation="0 0 0" radius-bottom="0.1" height="0.4" color="#1565C0"></a-cone>
+                    <a-cylinder id="vectorB" position="0 1.5 0" rotation="0 0 -90" radius="0.05" height="3" color="#2196F3"></a-cylinder>
+                    <a-cone id="arrowB" position="0 3 0" rotation="0 0 -90" radius-bottom="0.1" height="0.4" color="#1565C0"></a-cone>
                     <a-text id="labelB" value="b⃗" position="0.3 3.3 0" color="#2196F3" scale="2 2 2" rotation="90 0 0"></a-text>
                     <a-text id="coordsB" value="(0.0, 3.0)" position="0.3 2.7 0" color="#2196F3" scale="1.5 1.5 1.5" rotation="90 0 0"></a-text>
                     
@@ -215,6 +215,10 @@
     </a-scene>
 
     <script>
+        // Переменные для управления
+        let lengthA = 4;
+        let lengthB = 4;
+
         // Елементи інтерфейсу
         const statusElement = document.getElementById('status');
         const errorElement = document.getElementById('error-message');

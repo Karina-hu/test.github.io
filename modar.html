@@ -4,7 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AR 3D Модель Скалярного Произведения Векторов</title>
-    
+    <!-- JavaScript ES6 -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <!-- MathJax Script -->
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <!-- A-Frame -->
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <!-- AR.js -->
@@ -137,21 +140,10 @@
         Поиск маркера...
     </div>
 
-    <a-scene
-        vr-mode-ui="enabled: false"
-        arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
-        renderer="logarithmicDepthBuffer: true; precision: medium;"
-        embedded
-        gesture-detector>
+ <a-scene vr-mode-ui="enabled: false" embedded arjs="sourceType: webcam; debugUIEnabled: false" style="display: none;">
         
         <!-- AR маркер -->
-        <a-marker
-            id="markerA"
-            type="pattern"
-            url="https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/data/patt.hiro"
-            raycaster="objects: .clickable"
-            emitevents="true"
-            cursor="fuse: false; rayOrigin: mouse">
+        <a-marker preset=hiro>
             
             <!-- Основная группа с 3D моделью -->
             <a-entity id="mainGroup" position="0 0 0" scale="0.5 0.5 0.5">
@@ -298,6 +290,63 @@
     </a-scene>
 
     <script>
+        // Проверяем поддержку AR
+        function checkARSupport() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                showError("Ваш браузер не поддерживает доступ к камере. Попробуйте Chrome или Safari на мобильном устройстве.");
+                return false;
+            }
+            return true;
+        }
+        // Запускаем AR
+        function startAR() {
+            statusElement.textContent = "Запрашиваем доступ к камере...";
+            
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    // Доступ получен
+                    statusElement.textContent = "Доступ к камере получен!";
+                    errorElement.textContent = "";
+                    startButton.style.display = 'none';
+                    
+                    // Показываем сцену
+                    arScene.style.display = 'block';
+                    loader.style.display = 'none';
+                    
+                    // Обработка событий AR
+                    arScene.addEventListener('arReady', function() {
+                        statusElement.textContent = "AR готов к работе! Наведите на маркер Hiro";
+                    });
+                    
+                    arScene.addEventListener('markerFound', function() {
+                        loader.style.display = 'none';
+                    });
+                    
+                    arScene.addEventListener('markerLost', function() {
+                        loader.style.display = 'flex';
+                        statusElement.textContent = "Наведите камеру на маркер Hiro";
+                    });
+                })
+                .catch(function(error) {
+                    if (error.name === 'NotAllowedError') {
+                        showError("Доступ к камере запрещен. Пожалуйста, разрешите доступ в настройках браузера и обновите страницу.");
+                    } else if (error.name === 'NotFoundError' || error.name === 'OverconstrainedError') {
+                        showError("Камера не найдена. Убедитесь, что у вас есть рабочая камера.");
+                    } else {
+                        showError("Ошибка при доступе к камере: " + error.message);
+                    }
+                });
+        }
+        
+        // Инициализация
+        if (checkARSupport()) {
+            startButton.addEventListener('click', startAR);
+            
+            // Для мобильных устройств можно сразу запрашивать доступ
+            if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
+                startAR();
+            }
+        }
         // Переменные для управления
         let currentAngle = 60;
         let lengthA = 2;

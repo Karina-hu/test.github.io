@@ -12,7 +12,7 @@
         body {
             margin: 0;
             overflow: hidden;
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', Arial, sans-serif;
         }
         
         .arjs-loader {
@@ -83,6 +83,55 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
+
+        .controls h3 {
+            margin: 0 0 15px 0;
+            color: #FFD700;
+            text-align: center;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #E0E0E0;
+        }
+        
+        input[type="range"] {
+            width: 200px;
+            margin-bottom: 5px;
+        }
+        
+        .value-display {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 8px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            color: #FFD700;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .info {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(78, 205, 196, 0.2);
+            border-radius: 5px;
+            font-size: 12px;
+            border: 1px solid rgba(78, 205, 196, 0.3);
+        }
+        
+        .dot-product-result {
+            font-size: 16px;
+            font-weight: bold;
+            color: #4ECDC4;
+            text-align: center;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -101,7 +150,7 @@
     <a-scene vr-mode-ui="enabled: false" embedded arjs="sourceType: webcam; debugUIEnabled: false" style="display: none;">
         <a-marker preset="hiro">
  <!-- Панель управления как 3D-объект -->
-            <a-entity id="controls-panel" position="-2 2.5 -5" rotation="0 0 0">
+            <a-entity id="control-group" position="-2 2.5 -5" rotation="0 0 0">
                 <a-plane color="#1a1a2e" opacity="0.9" width="3" height="4" position="0 0 0.01">
                     <a-text value="Управление векторами" color="#FFD700" align="center" width="5" 
                            position="0 1.7 0.02" scale="0.5 0.5 -0.5"></a-text>
@@ -158,6 +207,26 @@
                     <a-cone id="arrowB" position="4 0 0" rotation="0 0 -90" radius-bottom="0.2" height="0.6" color="#1565C0"></a-cone>
                     <a-text id="labelB" value="b⃗" position="4.5 0.5 0" color="#2196F3"></a-text>
                 </a-entity>
+<!-- Projection -->
+<a-entity id="projection">
+    <a-cylinder id="projection" position="1.5 0 0" rotation="0 0 -90" radius="0.05" height="3" color="#FF5722"></a-cylinder>
+</a-entity>
+<!-- Perpendicular -->
+<a-entity id="perpendicular">
+    <a-cylinder id="perpendicular" position="3 1.73 0" rotation="0 0 0" radius="0.03" height="3.46" color="#FFC107"></a-cylinder>
+</a-entity>
+<!-- Angle -->
+<a-entity id="angleTorus">
+    <a-torus id="angleTorus" position="0 0 0" radius="1" radius-tublar="0.05" segments-radial="32" segments-tubular="8" arc="60" height="3" color="#E91E63"></a-torus>
+</a-entity>
+<!-- Angle Ask -->
+<a-entity id="angleLabel">
+    <a-text id="angleLabel" mixin="vector-text" value="0 = 60°" position="1.2 0.8 0" text="color: #E91E63; width: 8; font: roboto"></a-text>
+</a-entity>
+<!-- Number -->
+<a-entity id="resultValue">
+    <a-text id="resultValue" mixin="vector-text" value="≈ 8.00" position="0 -3 0" text="color: #4ECDC4; width: 10; font: roboto; align: center"></a-text>
+</a-entity>
             </a-entity>
         </a-marker>
         <a-entity camera></a-entity>

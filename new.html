@@ -136,8 +136,8 @@
         
         <div class="control-group">
             <label>Вектор A - длина:</label>
-            <input type="range" id="vectorA-length" min="0.5" max="2.5" step="0.1" value="2">
-            <span id="vectorA-length-value">2</span>
+            <input type="range" id="vectorA-length" min="1" max="5" step="0.1" value="3">
+            <span id="vectorA-length-value">3</span>
         </div>
         
         <div class="control-group">
@@ -148,15 +148,15 @@
         
         <div class="control-group">
             <label>Вектор B - длина:</label>
-            <input type="range" id="vectorB-length" min="0.5" max="2.5" step="0.1" value="2">
-            <span id="vectorB-length-value">2</span>
+            <input type="range" id="vectorB-length" min="1" max="5" step="0.1" value="3">
+            <span id="vectorB-length-value">3</span>
         </div>
         
         <div class="values-display">
             <div><strong>Значения:</strong></div>
             <div id="angle-display">Угол между векторами: 90°</div>
-            <div id="vectorA-coords">Вектор A: (2.0, 0.0)</div>
-            <div id="vectorB-coords">Вектор B: (0.0, 2.0)</div>
+            <div id="vectorA-coords">Вектор A: (3.0, 0.0)</div>
+            <div id="vectorB-coords">Вектор B: (0.0, 3.0)</div>
             <div id="projectionA-value">Проекция A на B: 0.0</div>
             <div id="projectionB-value">Проекция B на A: 0.0</div>
         </div>
@@ -165,49 +165,56 @@
     <!-- AR-сцена (изначально скрыта) -->
     <a-scene vr-mode-ui="enabled: false" embedded arjs="sourceType: webcam; debugUIEnabled: false">
         <a-marker preset="hiro">
-            <a-entity id="scene-content" rotation="-90 0 0" scale="0.7 0.7 0.7">
+            <a-entity id="scene-content" rotation="-90 0 0">
                 <a-light type="ambient" color="#404040"></a-light>
                 <a-light type="directional" color="#fff" intensity="0.5" position="-1 1 2"></a-light>
                 
                 <!-- Origin point -->
-                <a-sphere position="0 0 0" radius="0.08" color="#FFD700"></a-sphere>
+                <a-sphere position="0 0 0" radius="0.1" color="#FFD700"></a-sphere>
                 
                 <!-- Grid lines for reference -->
                 <a-entity id="grid">
-                    <a-cylinder position="0 0 0" rotation="0 0 90" radius="0.015" height="5" color="#333" opacity="0.3"></a-cylinder>
-                    <a-cylinder position="0 0 0" rotation="90 0 0" radius="0.015" height="5" color="#333" opacity="0.3"></a-cylinder>
+                    <a-cylinder position="0 0 0" rotation="0 0 90" radius="0.02" height="6" color="#333" opacity="0.3"></a-cylinder>
+                    <a-cylinder position="0 0 0" rotation="90 0 0" radius="0.02" height="6" color="#333" opacity="0.3"></a-cylinder>
                 </a-entity>
 
                 <!-- Vector A group -->
                 <a-entity id="vectorAGroup">
-                    <a-cylinder id="vectorA" position="1 0 0" rotation="0 0 -90" radius="0.04" height="2" color="#4CAF50"></a-cylinder>
-                    <a-cone id="arrowA" position="2 0 0" rotation="0 0 -90" radius-bottom="0.12" height="0.3" color="#2E7D32"></a-cone>
-                    <a-text id="labelA" value="a⃗" position="2.2 0.2 0" color="#4CAF50" scale="1.5 1.5 1.5" rotation="90 0 0"></a-text>
-                    <a-text id="coordsA" value="(2.0, 0.0)" position="2.2 -0.2 0" color="#4CAF50" scale="1.2 1.2 1.2" rotation="90 0 0"></a-text>
-                    
-                    <!-- Projection of A onto B -->
-                    <a-cylinder id="projectionA" position="0 0 0" rotation="0 0 0" radius="0.025" height="0" color="#4CAF50" opacity="0.6"></a-cylinder>
-                    <a-text id="projLabelA" value="proj_b(a⃗)" position="0 0 0" color="#4CAF50" scale="0.8 0.8 0.8" rotation="90 0 0"></a-text>
+                    <a-cylinder id="vectorA" position="1.5 0 0" rotation="0 0 -90" radius="0.05" height="3" color="#4CAF50"></a-cylinder>
+                    <a-cone id="arrowA" position="3 0 0" rotation="0 0 -90" radius-bottom="0.15" height="0.4" color="#2E7D32"></a-cone>
+                    <a-text id="labelA" value="a⃗" position="3.3 0.3 0" color="#4CAF50" scale="2 2 2" rotation="90 0 0"></a-text>
+                    <a-text id="coordsA" value="(3.0, 0.0)" position="3.3 -0.3 0" color="#4CAF50" scale="1.5 1.5 1.5" rotation="90 0 0"></a-text>
                 </a-entity>
 
-                <!-- Vector B group -->
+                <!-- Vector B group - исправлена группировка -->
                 <a-entity id="vectorBGroup">
-                    <a-cylinder id="vectorB" position="0 1 0" rotation="0 0 0" radius="0.04" height="2" color="#2196F3"></a-cylinder>
-                    <a-cone id="arrowB" position="0 2 0" rotation="0 0 0" radius-bottom="0.12" height="0.3" color="#1565C0"></a-cone>
-                    <a-text id="labelB" value="b⃗" position="0.2 2.2 0" color="#2196F3" scale="1.5 1.5 1.5" rotation="90 0 0"></a-text>
-                    <a-text id="coordsB" value="(0.0, 2.0)" position="0.2 1.8 0" color="#2196F3" scale="1.2 1.2 1.2" rotation="90 0 0"></a-text>
+                    <a-cylinder id="vectorB" position="0 1.5 0" rotation="0 0 0" radius="0.05" height="3" color="#2196F3"></a-cylinder>
+                    <a-cone id="arrowB" position="0 3 0" rotation="0 0 0" radius-bottom="0.15" height="0.4" color="#1565C0"></a-cone>
+                    <a-text id="labelB" value="b⃗" position="0.3 3.3 0" color="#2196F3" scale="2 2 2" rotation="90 0 0"></a-text>
+                    <a-text id="coordsB" value="(0.0, 3.0)" position="0.3 2.7 0" color="#2196F3" scale="1.5 1.5 1.5" rotation="90 0 0"></a-text>
+                </a-entity>
+
+                <!-- Projections group -->
+                <a-entity id="projectionGroup">
+                    <!-- Projection of A onto B (показывается вдоль вектора B) -->
+                    <a-cylinder id="projectionA" position="0 0.75 0" rotation="0 0 0" radius="0.03" height="0" color="#4CAF50" opacity="0.5"></a-cylinder>
+                    <a-text id="projLabelA" value="proj_b(a⃗)" position="0.3 0.75 0" color="#4CAF50" scale="1.2 1.2 1.2" rotation="90 0 0"></a-text>
                     
-                    <!-- Projection of B onto A -->
-                    <a-cylinder id="projectionB" position="0 0 0" rotation="0 0 -90" radius="0.025" height="0" color="#2196F3" opacity="0.6"></a-cylinder>
-                    <a-text id="projLabelB" value="proj_a(b⃗)" position="0 0 0" color="#2196F3" scale="0.8 0.8 0.8" rotation="90 0 0"></a-text>
+                    <!-- Projection of B onto A (показывается вдоль вектора A) -->
+                    <a-cylinder id="projectionB" position="0 0 0" rotation="0 0 -90" radius="0.03" height="0" color="#2196F3" opacity="0.5"></a-cylinder>
+                    <a-text id="projLabelB" value="proj_a(b⃗)" position="0.3 -0.5 0" color="#2196F3" scale="1.2 1.2 1.2" rotation="90 0 0"></a-text>
+                    
+                    <!-- Dotted lines for projections -->
+                    <a-cylinder id="projLineB" position="0 0 0" rotation="0 0 0" radius="0.01" height="0" color="#999" opacity="0.7"></a-cylinder>
+                    <a-cylinder id="projLineA" position="0 0 0" rotation="0 0 0" radius="0.01" height="0" color="#999" opacity="0.7"></a-cylinder>
                 </a-entity>
                 
                 <!-- Angle arc -->
                 <a-entity id="angleArc">
-                    <a-torus id="angleTorus" position="0 0 0" radius="0.6" radius-tubular="0.015" 
+                    <a-torus id="angleTorus" position="0 0 0" radius="0.8" radius-tubular="0.02" 
                              segments-radial="32" segments-tubular="8" color="#FFD700"
                              theta-start="0" theta-length="90"></a-torus>
-                    <a-text id="angleLabel" value="90°" position="0.4 0.4 0" color="#FFD700" scale="1.2 1.2 1.2" rotation="90 0 0"></a-text>
+                    <a-text id="angleLabel" value="90°" position="0.6 0.6 0" color="#FFD700" scale="1.8 1.8 1.8" rotation="90 0 0"></a-text>
                 </a-entity>
             </a-entity>
         </a-marker>
@@ -229,8 +236,8 @@
         const vectorBLengthSlider = document.getElementById('vectorB-length');
         
         // Параметры векторов
-        let vectorAData = { length: 2 };
-        let vectorBData = { angle: 90, length: 2 };
+        let vectorAData = { length: 3 };
+        let vectorBData = { angle: 90, length: 3 };
         
         // Проверяем поддержку AR
         function checkARSupport() {
@@ -302,35 +309,12 @@
             vectorA.setAttribute('position', `${vectorACenter} 0 0`);
             vectorA.setAttribute('height', vectorAData.length);
             arrowA.setAttribute('position', `${vectorAEnd} 0 0`);
-            labelA.setAttribute('position', `${vectorAEnd + 0.2} 0.2 0`);
-            coordsA.setAttribute('position', `${vectorAEnd + 0.2} -0.2 0`);
+            labelA.setAttribute('position', `${vectorAEnd + 0.3} 0.3 0`);
+            coordsA.setAttribute('position', `${vectorAEnd + 0.3} -0.3 0`);
             coordsA.setAttribute('value', `(${vectorAData.length.toFixed(1)}, 0.0)`);
             
-            // Вектор B (начинается от центра, поворачивается вокруг начала)
-            const vectorB = document.getElementById('vectorB');
-            const arrowB = document.getElementById('arrowB');
-            const labelB = document.getElementById('labelB');
-            const coordsB = document.getElementById('coordsB');
-            
-            const angleRad = (vectorBData.angle * Math.PI) / 180;
-            const vectorBEndX = vectorBData.length * Math.cos(angleRad);
-            const vectorBEndY = vectorBData.length * Math.sin(angleRad);
-            const vectorBCenterX = (vectorBData.length / 2) * Math.cos(angleRad);
-            const vectorBCenterY = (vectorBData.length / 2) * Math.sin(angleRad);
-            
-            // Устанавливаем позицию центра вектора B
-            vectorB.setAttribute('position', `${vectorBCenterX} ${vectorBCenterY} 0`);
-            vectorB.setAttribute('rotation', `0 0 ${90 - vectorBData.angle}`);
-            vectorB.setAttribute('height', vectorBData.length);
-            
-            // Стрелка прикреплена к концу вектора B
-            arrowB.setAttribute('position', `${vectorBEndX} ${vectorBEndY} 0`);
-            arrowB.setAttribute('rotation', `0 0 ${90 - vectorBData.angle}`);
-            
-            // Подписи вектора B
-            labelB.setAttribute('position', `${vectorBEndX + 0.2} ${vectorBEndY + 0.15} 0`);
-            coordsB.setAttribute('position', `${vectorBEndX + 0.2} ${vectorBEndY - 0.15} 0`);
-            coordsB.setAttribute('value', `(${vectorBEndX.toFixed(1)}, ${vectorBEndY.toFixed(1)})`);
+            // Вектор B - ИСПРАВЛЕНО: группируем все элементы вектора B
+            updateVectorB();
             
             // Обновление проекций
             updateProjections();
@@ -341,12 +325,43 @@
             // Обновление дисплея значений
             updateValueDisplay();
         }
+
+        // Отдельная функция для обновления вектора B
+        function updateVectorB() {
+            const vectorBGroup = document.getElementById('vectorBGroup');
+            const vectorB = document.getElementById('vectorB');
+            const arrowB = document.getElementById('arrowB');
+            const labelB = document.getElementById('labelB');
+            const coordsB = document.getElementById('coordsB');
+            
+            const angleRad = (vectorBData.angle * Math.PI) / 180;
+            const vectorBEndX = vectorBData.length * Math.cos(angleRad);
+            const vectorBEndY = vectorBData.length * Math.sin(angleRad);
+            
+            // Поворачиваем всю группу вектора B
+            vectorBGroup.setAttribute('rotation', `0 0 ${vectorBData.angle}`);
+            
+            // Позиционируем элементы внутри группы относительно начала координат группы
+            const vectorBCenter = vectorBData.length / 2;
+            vectorB.setAttribute('position', `${vectorBCenter} 0 0`);
+            vectorB.setAttribute('height', vectorBData.length);
+            
+            // Стрелка теперь правильно привязана к концу вектора
+            arrowB.setAttribute('position', `${vectorBData.length} 0 0`);
+            
+            // Обновляем позиции меток
+            labelB.setAttribute('position', `${vectorBData.length + 0.3} 0.3 0`);
+            coordsB.setAttribute('position', `${vectorBData.length + 0.3} -0.3 0`);
+            coordsB.setAttribute('value', `(${vectorBEndX.toFixed(1)}, ${vectorBEndY.toFixed(1)})`);
+        }
         
         function updateProjections() {
             const projectionA = document.getElementById('projectionA');
             const projectionB = document.getElementById('projectionB');
             const projLabelA = document.getElementById('projLabelA');
             const projLabelB = document.getElementById('projLabelB');
+            const projLineA = document.getElementById('projLineA');
+            const projLineB = document.getElementById('projLineB');
             
             // Вектора
             const vecA = { x: vectorAData.length, y: 0 };
@@ -355,19 +370,19 @@
                 y: vectorBData.length * Math.sin((vectorBData.angle * Math.PI) / 180) 
             };
             
-            // Проекция A на B
+            // Скалярное произведение и длины
             const dotAB = vecA.x * vecB.x + vecA.y * vecB.y;
+            const magA = Math.sqrt(vecA.x * vecA.x + vecA.y * vecA.y);
             const magB = Math.sqrt(vecB.x * vecB.x + vecB.y * vecB.y);
+            
+            // Проекции (скалярные значения)
             const projAOnB = dotAB / magB;
+            const projBOnA = dotAB / magA;
+            
+            // Визуализация проекции A на B (лежит на векторе B)
+            const angleRad = (vectorBData.angle * Math.PI) / 180;
             const projALength = Math.abs(projAOnB);
             
-            // Проекция B на A
-            const magA = Math.sqrt(vecA.x * vecA.x + vecA.y * vecA.y);
-            const projBOnA = dotAB / magA;
-            const projBLength = Math.abs(projBOnA);
-            
-            // Визуализация проекции A на B (прикреплена к вектору B)
-            const angleRad = (vectorBData.angle * Math.PI) / 180;
             if (projALength > 0.05) {
                 const projACenterX = (projALength / 2) * Math.cos(angleRad);
                 const projACenterY = (projALength / 2) * Math.sin(angleRad);
@@ -375,29 +390,48 @@
                 projectionA.setAttribute('position', `${projACenterX} ${projACenterY} 0`);
                 projectionA.setAttribute('rotation', `0 0 ${90 - vectorBData.angle}`);
                 projectionA.setAttribute('height', projALength);
+                projLabelA.setAttribute('position', `${projACenterX + 0.3} ${projACenterY + 0.3} 0`);
                 
+                // Пунктирная линия от конца A к проекции A на B
                 const projAEndX = projALength * Math.cos(angleRad);
                 const projAEndY = projALength * Math.sin(angleRad);
-                projLabelA.setAttribute('position', `${projAEndX + 0.15} ${projAEndY + 0.15} 0`);
-                projLabelA.setAttribute('visible', 'true');
+                const lineACenterX = (vecA.x + projAEndX) / 2;
+                const lineACenterY = (vecA.y + projAEndY) / 2;
+                const lineALength = Math.sqrt(Math.pow(vecA.x - projAEndX, 2) + Math.pow(vecA.y - projAEndY, 2));
+                const lineAAngle = Math.atan2(projAEndY - vecA.y, projAEndX - vecA.x) * 180 / Math.PI;
+                
+                projLineA.setAttribute('position', `${lineACenterX} ${lineACenterY} 0`);
+                projLineA.setAttribute('rotation', `0 0 ${90 - lineAAngle}`);
+                projLineA.setAttribute('height', lineALength);
             } else {
                 projectionA.setAttribute('height', 0);
-                projLabelA.setAttribute('visible', 'false');
+                projLineA.setAttribute('height', 0);
             }
             
-            // Визуализация проекции B на A (прикреплена к вектору A)
+            // Визуализация проекции B на A (лежит на векторе A)
+            const projBLength = Math.abs(projBOnA);
+            
             if (projBLength > 0.05) {
                 const projBCenterX = projBLength / 2;
                 
                 projectionB.setAttribute('position', `${projBCenterX} 0 0`);
                 projectionB.setAttribute('height', projBLength);
-                projectionB.setAttribute('rotation', '0 0 -90');
+                projLabelB.setAttribute('position', `${projBCenterX + 0.3} -0.5 0`);
                 
-                projLabelB.setAttribute('position', `${projBLength + 0.15} -0.3 0`);
-                projLabelB.setAttribute('visible', 'true');
+                // Пунктирная линия от конца B к проекции B на A
+                const projBEndX = projBLength;
+                const projBEndY = 0;
+                const lineBCenterX = (vecB.x + projBEndX) / 2;
+                const lineBCenterY = (vecB.y + projBEndY) / 2;
+                const lineBLength = Math.sqrt(Math.pow(vecB.x - projBEndX, 2) + Math.pow(vecB.y - projBEndY, 2));
+                const lineBAngle = Math.atan2(projBEndY - vecB.y, projBEndX - vecB.x) * 180 / Math.PI;
+                
+                projLineB.setAttribute('position', `${lineBCenterX} ${lineBCenterY} 0`);
+                projLineB.setAttribute('rotation', `0 0 ${90 - lineBAngle}`);
+                projLineB.setAttribute('height', lineBLength);
             } else {
                 projectionB.setAttribute('height', 0);
-                projLabelB.setAttribute('visible', 'false');
+                projLineB.setAttribute('height', 0);
             }
         }
         
@@ -405,24 +439,13 @@
             const angleTorus = document.getElementById('angleTorus');
             const angleLabel = document.getElementById('angleLabel');
             
-            // Обновляем дугу угла
             angleTorus.setAttribute('theta-length', vectorBData.angle);
             angleLabel.setAttribute('value', `${vectorBData.angle}°`);
             
-            // Позиционируем подпись угла в середине дуги
             const labelAngleRad = (vectorBData.angle / 2 * Math.PI) / 180;
-            const labelX = 0.8 * Math.cos(labelAngleRad);
-            const labelY = 0.8 * Math.sin(labelAngleRad);
+            const labelX = 1.2 * Math.cos(labelAngleRad);
+            const labelY = 1.2 * Math.sin(labelAngleRad);
             angleLabel.setAttribute('position', `${labelX} ${labelY} 0`);
-            
-            // Скрываем угол если он равен 0
-            if (vectorBData.angle === 0) {
-                angleTorus.setAttribute('visible', 'false');
-                angleLabel.setAttribute('visible', 'false');
-            } else {
-                angleTorus.setAttribute('visible', 'true');
-                angleLabel.setAttribute('visible', 'true');
-            }
         }
         
         function updateValueDisplay() {

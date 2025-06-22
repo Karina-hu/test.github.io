@@ -100,7 +100,9 @@
     <!-- AR-сцена (изначально скрыта) -->
     <a-scene vr-mode-ui="enabled: false" embedded arjs="sourceType: webcam; debugUIEnabled: false" style="display: none;">
         <a-marker preset="hiro">
-    <!-- Панель управления как 3D-объект -->
+            <!-- Ваша 3D сцена здесь -->
+            <a-entity id="scene-content">
+<!-- Панель управления как 3D-объект -->
             <a-entity id="controls-panel" position="-2 2.5 -7" rotation="0 0 0">
                 <a-plane color="#1a1a2e" opacity="0.9" width="3" height="4" position="0 0 -7.01">
                     <a-text value="Управление векторами" color="#FFD700" align="center" width="5" 
@@ -135,9 +137,6 @@
                            width="2.5" position="0 -1.2 -7.02" scale="1.2 1.2 1"></a-text>
                 </a-plane>
             </a-entity>
-
-            <!-- Ваша 3D сцена здесь -->
-            <a-entity id="scene-content">
                 <!-- Содержимое вашей сцены -->
                 <a-light type="ambient" color="#404040"></a-light>
                 <a-light type="directional" color="#fff" intensity="0.5" position="-1 1 -5"></a-light>
@@ -244,6 +243,256 @@
         
         function updateVectors() {
             // Ваш существующий код обновления векторов...
+ // Переменные для управления
+        let currentAngle = 60;
+        let lengthA = 4;
+        let lengthB = 4;
+
+        // Компонент для слайдеров
+        AFRAME.registerComponent('slider-control', {
+            schema: {
+                id: {type: 'string'},
+                min: {type: 'number'},
+                max: {type: 'number'},
+                step: {type: 'number'},
+                value: {type: 'number'},
+                width: {type: 'number'},
+                height: {type: 'number'},
+                position: {type: 'vec3'}
+            },
+            
+            init: function() {
+                const data = this.data;
+                const el = this.el;
+                
+                // Создаем полосу слайдера
+                el.setAttribute('geometry', {
+                    primitive: 'plane',
+                    width: data.width,
+                    height: data.height
+                });
+                el.setAttribute('material', {color: '#888'});
+                el.setAttribute('position', data.position);
+                
+                // Создаем бегунок
+                const thumb = document.createElement('a-entity');
+                thumb.setAttribute('geometry', {
+                    primitive: 'cylinder',
+                    radius: 0.1,
+                    height: 0.2
+                });
+                thumb.setAttribute('material', {color: '#FFD700'});
+                thumb.setAttribute('position', {
+                    x: (data.value - (data.max + data.min)/2) / (data.max - data.min) * data.width,
+                    y: 0,
+                    z: 0.05
+                });
+                thumb.setAttribute('rotation', '90 0 0');
+                thumb.setAttribute('class', 'draggable');
+                thumb.setAttribute('drag-controls', {});
+                el.appendChild(thumb);
+                
+                // Обработка перемещения бегунка
+                thumb.addEventListener('componentchanged', (evt) => {
+                    if (evt.detail.name === 'position') {
+                        const newX = Math.max(-data.width/2, Math.min(data.width/2, evt.detail.newData.x));
+                        const newValue = ((newX / data.width) * (data.max - data.min)) + (data.max + data.min)/2;
+                        const roundedValue = Math.round(newValue / data.step) * data.step;
+                        
+                        thumb.setAttribute('position', {
+                            x: ((roundedValue - (data.max + data.min)/2) / (data.max - data.min)) * data.width,
+                            y: 0,
+                            z: 0.05
+                        });
+                        
+                        // Обновляем значение
+                        if (data.id === 'angleSlider') {
+                            currentAngle = roundedValue;
+                            document.getElementById('angleValue').setAttribute('value', roundedValue + '°');
+                        } else if (data.id === 'lengthASlider') {
+                            lengthA = roundedValue;
+                            document.getElementById('lengthAValue').setAttribute('value', roundedValue.toFixed(1));
+                        } else if (data.id === 'lengthBSlider') {
+                            lengthB = roundedValue;
+                            document.getElementById('lengthBValue').setAttribute('value', roundedValue.toFixed(1));
+                        }
+                        
+                        updateVectors();
+                    }
+                });
+            }
+        });
+
+        // Компонент для перетаскивания
+        AFRAME.registerComponent('drag-controls', {
+            init: function() {
+                this.el.addEventListener('mousedown', this.onGrabStart.bind(this));
+                this.el.addEventListener('mouseup', this.onGrabEnd.bind(this));
+                this.el.addEventListener('mouseleave', this.onGrabEnd.bind(this));
+                this.isGrabbed = false;
+            },
+            
+            onGrabStart: function() {
+                this.isGrabbed = true;
+                this.el.setAttribute('material', 'color', '#FF9800');
+            },
+            
+            onGrabEnd: function() {
+                this.isGrabbed = false;
+                this.el.setAttribute('material', 'color', '#FFD700');
+            },
+            
+            tick: function() {
+                if (!this.isGrabbed) return;
+                
+                const camera = document.querySelector('[camera]');
+                const direction = new THREE.Vector3();
+                camera.getWorldDirection(direction);
+                
+                // Получаем позицию мыши в 3D пространстве
+                const intersection = this.getIntersection();
+                if (intersection) {
+                    const parent = this.el.parentEl;
+                    const parentPos = parent.object3D.worldToLocal(intersection.point.clone());
+                    this.el.setAttribute('position', {
+                        x: parentPos.x,
+                        y: 0,
+                        z: 0.05
+                    });
+                }
+            },
+            
+            getIntersection: function() {
+                const camera = document.querySelector('[camera]');
+                const cursor = document.querySelector('[cursor]');
+                
+                if (!cursor) return null;
+                
+                const raycaster = cursor.components.raycaster;
+                const intersections = raycaster.intersectObject(this.el.parentEl.object3D, true);
+                
+                return intersections[0] || null;
+            }
+        });
+
+        // A-Frame элементы
+        let vectorAGroup, vectorBGroup;
+        let vectorA, arrowA, labelA;
+        let vectorB, arrowB, labelB;
+        let projection, perpendicular;
+        let angleTorus, angleLabel, resultValue;
+
+        // Инициализация после загрузки A-Frame
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                // Получаем группы векторов
+                vectorAGroup = document.getElementById('vectorAGroup');
+                vectorBGroup = document.getElementById('vectorBGroup');
+                
+                // Элементы вектора A
+                vectorA = document.getElementById('vectorA');
+                arrowA = document.getElementById('arrowA');
+                labelA = document.getElementById('labelA');
+                
+                // Элементы вектора B
+                vectorB = document.getElementById('vectorB');
+                arrowB = document.getElementById('arrowB');
+                labelB = document.getElementById('labelB');
+                
+                // Остальные элементы
+                projection = document.getElementById('projection');
+                perpendicular = document.getElementById('perpendicular');
+                angleTorus = document.getElementById('angleTorus');
+                angleLabel = document.getElementById('angleLabel');
+                resultValue = document.getElementById('resultValue');
+                
+                updateVectors();
+                
+                // Скрываем индикатор загрузки после инициализации
+                document.querySelector('.arjs-loader').style.display = 'none';
+            }, 1000);
+        });
+
+        function updateVectors() {
+            if (!vectorAGroup || !vectorBGroup) return;
+
+            // Конвертируем угол в радианы
+            const angleRad = (currentAngle * Math.PI) / 180;
+            
+            // Обновляем вектор A
+            vectorA.setAttribute('position', `${lengthA/2} 0 0`);
+            vectorA.setAttribute('height', lengthA);
+            arrowA.setAttribute('position', `${lengthA} 0 0`);
+            labelA.setAttribute('position', `${lengthA + 0.5} 0.5 0`);
+            
+            // Обновляем вектор B как единую группу
+            // Поворачиваем всю группу вектора B на нужный угол
+            vectorBGroup.setAttribute('rotation', `0 0 ${currentAngle}`);
+            
+            // Устанавливаем длину вектора B внутри группы
+            vectorB.setAttribute('position', `${lengthB/2} 0 0`);
+            vectorB.setAttribute('height', lengthB);
+            arrowB.setAttribute('position', `${lengthB} 0 0`);
+            labelB.setAttribute('position', `${lengthB + 0.5} 0.5 0`);
+            
+            // Вычисляем конечную позицию вектора B для других элементов
+            const endB = { 
+                x: lengthB * Math.cos(angleRad), 
+                y: lengthB * Math.sin(angleRad), 
+                z: 0 
+            };
+            
+            // Обновляем проекцию
+            const projectionLength = lengthB * Math.cos(angleRad);
+            if (projectionLength > 0) {
+                projection.setAttribute('position', `${projectionLength/2} 0 0`);
+                projection.setAttribute('height', projectionLength);
+                projection.setAttribute('visible', true);
+            } else {
+                projection.setAttribute('visible', false);
+            }
+            
+            // Обновляем перпендикуляр
+            const perpHeight = Math.abs(lengthB * Math.sin(angleRad));
+            const perpX = Math.max(0, projectionLength);
+            
+            if (perpHeight > 0.1) {
+                perpendicular.setAttribute('position', `${perpX} ${perpHeight/2} 0`);
+                perpendicular.setAttribute('height', perpHeight);
+                perpendicular.setAttribute('visible', true);
+            } else {
+                perpendicular.setAttribute('visible', false);
+            }
+            
+            // Обновляем дугу угла
+            angleTorus.setAttribute('arc', Math.min(currentAngle, 179));
+            
+            // Обновляем подпись угла
+            const labelAnglePos = {
+                x: 1.2 * Math.cos(angleRad/2),
+                y: 1.2 * Math.sin(angleRad/2),
+                z: 0
+            };
+            angleLabel.setAttribute('position', `${labelAnglePos.x} ${labelAnglePos.y} ${labelAnglePos.z}`);
+            angleLabel.setAttribute('value', `θ = ${currentAngle}°`);
+            
+            // Вычисляем скалярное произведение
+            const dotProduct = lengthA * lengthB * Math.cos(angleRad);
+            
+            // Обновляем результат
+            resultValue.setAttribute('value', `≈ ${dotProduct.toFixed(2)}`);
+            document.getElementById('dotProductResult').setAttribute('value', `a⃗ · b⃗ ≈ ${dotProduct.toFixed(2)}`);
+            
+            // Изменяем цвет результата в зависимости от знака
+            let resultColor = '#4ECDC4';
+            if (dotProduct < 0) {
+                resultColor = '#FF6B6B';
+            } else if (Math.abs(dotProduct) < 0.1) {
+                resultColor = '#FFC107';
+            }
+            
+            resultValue.setAttribute('text', `color: ${resultColor}; width: 10; font: roboto; align: center`);
+        }
         }
     </script>
 </body>

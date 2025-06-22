@@ -288,68 +288,53 @@
                 });
         }
         
-        // Обновление векторов
-        function updateVectors() {
-            // Вектор A (всегда горизонтальный, начинается от центра)
-            const vectorA = document.getElementById('vectorA');
-            const arrowA = document.getElementById('arrowA');
-            const labelA = document.getElementById('labelA');
-            const coordsA = document.getElementById('coordsA');
-            
-            const vectorACenter = vectorAData.length / 2;
-            const vectorAEnd = vectorAData.length;
-            
-            vectorA.setAttribute('position', `${vectorACenter} 0 0`);
-            vectorA.setAttribute('height', vectorAData.length);
-            arrowA.setAttribute('position', `${vectorAEnd} 0 0`);
-            labelA.setAttribute('position', `${vectorAEnd + 0.3} 0.3 0`);
-            coordsA.setAttribute('position', `${vectorAEnd + 0.3} -0.3 0`);
-            coordsA.setAttribute('value', `(${vectorAData.length.toFixed(1)}, 0.0)`);
-
-            // Позиционирование меток с учетом угла вектора
-const labelOffset = 0.3;
-const labelAngleOffset = 0.3; // Небольшой угол для лучшей читаемости
-
-const labelPosX = vectorBEndX + labelOffset * Math.cos(angleRad + labelAngleOffset);
-const labelPosY = vectorBEndY + labelOffset * Math.sin(angleRad + labelAngleOffset);
-
-const coordsPosX = vectorBEndX + labelOffset * Math.cos(angleRad - labelAngleOffset);
-const coordsPosY = vectorBEndY + labelOffset * Math.sin(angleRad - labelAngleOffset);
-
-labelB.setAttribute('position', `${labelPosX} ${labelPosY} 0`);
-coordsB.setAttribute('position', `${coordsPosX} ${coordsPosY} 0`);
-            
-// Вектор B (начинается от центра)
-const vectorB = document.getElementById('vectorB');
-const arrowB = document.getElementById('arrowB');
-const labelB = document.getElementById('labelB');
-const coordsB = document.getElementById('coordsB');
-
-const angleRad = (vectorBData.angle * Math.PI) / 180;
-const vectorBEndX = vectorBData.length * Math.cos(angleRad);
-const vectorBEndY = vectorBData.length * Math.sin(angleRad);
-const vectorBCenterX = vectorBEndX / 2;
-const vectorBCenterY = vectorBEndY / 2;
-// Изменения здесь: позиционируем начало вектора в (0,0)
-vectorB.setAttribute('position', `${vectorBEndX/2} ${vectorBEndY/2} 0`);
-vectorB.setAttribute('position', `${vectorBCenterX} ${vectorBCenterY} 0`);
-vectorB.setAttribute('rotation', `0 0 ${90 - vectorBData.angle}`);
-vectorB.setAttribute('height', vectorBData.length);
-arrowB.setAttribute('position', `${vectorBEndX} ${vectorBEndY} 0`);
-arrowB.setAttribute('rotation', `0 0 ${90 - vectorBData.angle}`);
-labelB.setAttribute('position', `${vectorBEndX + 0.3 * Math.cos(angleRad)} ${vectorBEndY + 0.3 * Math.sin(angleRad)} 0`);
-coordsB.setAttribute('position', `${vectorBEndX + 0.3 * Math.cos(angleRad)} ${vectorBEndY - 0.3 * Math.sin(angleRad)} 0`);
-coordsB.setAttribute('value', `(${vectorBEndX.toFixed(1)}, ${vectorBEndY.toFixed(1)})`);
-            
-            // Обновление проекций
-            updateProjections();
-            
-            // Обновление угла
-            updateAngle();
-            
-            // Обновление дисплея значений
-            updateValueDisplay();
-        }
+// Обновление векторов
+function updateVectors() {
+    // Вектор A (всегда горизонтальный, начинается от центра)
+    const vectorA = document.getElementById('vectorA');
+    const arrowA = document.getElementById('arrowA');
+    const labelA = document.getElementById('labelA');
+    const coordsA = document.getElementById('coordsA');
+    
+    const vectorACenter = vectorAData.length / 2;
+    const vectorAEnd = vectorAData.length;
+    
+    vectorA.setAttribute('position', `${vectorACenter} 0 0`);
+    vectorA.setAttribute('height', vectorAData.length);
+    arrowA.setAttribute('position', `${vectorAEnd} 0 0`);
+    labelA.setAttribute('position', `${vectorAEnd + 0.3} 0.3 0`);
+    coordsA.setAttribute('position', `${vectorAEnd + 0.3} -0.3 0`);
+    coordsA.setAttribute('value', `(${vectorAData.length.toFixed(1)}, 0.0)`);
+    
+    // Вектор B (начинается от центра)
+    const vectorB = document.getElementById('vectorB');
+    const arrowB = document.getElementById('arrowB');
+    const labelB = document.getElementById('labelB');
+    const coordsB = document.getElementById('coordsB');
+    
+    const angleRad = (vectorBData.angle * Math.PI) / 180;
+    const vectorBEndX = vectorBData.length * Math.cos(angleRad);
+    const vectorBEndY = vectorBData.length * Math.sin(angleRad);
+    
+    // Исправлено: начало вектора B всегда в точке (0, 0)
+    vectorB.setAttribute('position', '0 0 0');
+    vectorB.setAttribute('rotation', `0 0 ${90 - vectorBData.angle}`);
+    vectorB.setAttribute('height', vectorBData.length);
+    arrowB.setAttribute('position', `${vectorBEndX} ${vectorBEndY} 0`);
+    arrowB.setAttribute('rotation', `0 0 ${90 - vectorBData.angle}`);
+    labelB.setAttribute('position', `${vectorBEndX + 0.3} ${vectorBEndY + 0.2} 0`);
+    coordsB.setAttribute('position', `${vectorBEndX + 0.3} ${vectorBEndY - 0.2} 0`);
+    coordsB.setAttribute('value', `(${vectorBEndX.toFixed(1)}, ${vectorBEndY.toFixed(1)})`);
+    
+    // Обновление проекций
+    updateProjections();
+    
+    // Обновление угла
+    updateAngle();
+    
+    // Обновление дисплея значений
+    updateValueDisplay();
+}
         
         function updateProjections() {
             const projectionA = document.getElementById('projectionA');
@@ -375,34 +360,30 @@ coordsB.setAttribute('value', `(${vectorBEndX.toFixed(1)}, ${vectorBEndY.toFixed
             const projBOnA = dotAB / magA;
             const projBLength = Math.abs(projBOnA);
             
-// Визуализация проекции A на B
-const angleRad = (vectorBData.angle * Math.PI) / 180;
-const projAStartX = 0;
-const projAStartY = 0;
-const projAEndX = projALength * Math.cos(angleRad);
-const projAEndY = projALength * Math.sin(angleRad);
-const projACenterX = projAEndX / 2;
-const projACenterY = projAEndY / 2;
-
-if (projALength > 0.1) {
-    projectionA.setAttribute('position', `${projACenterX} ${projACenterY} 0`);
-    projectionA.setAttribute('rotation', `0 0 ${90 - vectorBData.angle}`);
-    projectionA.setAttribute('height', projALength);
-    projLabelA.setAttribute('position', `${projACenterX + 0.3} ${projACenterY + 0.3} 0`);
-} else {
-    projectionA.setAttribute('height', 0);
-}
-
-// Визуализация проекции B на A остается без изменений
-const projBCenterX = projBLength / 2;
-
-if (projBLength > 0.1) {
-    projectionB.setAttribute('position', `${projBCenterX} 0 0`);
-    projectionB.setAttribute('height', projBLength);
-    projLabelB.setAttribute('position', `${projBCenterX + 0.3} -0.5 0`);
-} else {
-    projectionB.setAttribute('height', 0);
-}
+            // Визуализация проекции A на B
+            const angleRad = (vectorBData.angle * Math.PI) / 180;
+            const projACenterX = (projALength / 2) * Math.cos(angleRad);
+            const projACenterY = (projALength / 2) * Math.sin(angleRad);
+            
+            if (projALength > 0.1) {
+                projectionA.setAttribute('position', `${projACenterX} ${projACenterY} 0`);
+                projectionA.setAttribute('rotation', `0 0 ${90 - vectorBData.angle}`);
+                projectionA.setAttribute('height', projALength);
+                projLabelA.setAttribute('position', `${projACenterX + 0.3} ${projACenterY + 0.3} 0`);
+            } else {
+                projectionA.setAttribute('height', 0);
+            }
+            
+            // Визуализация проекции B на A
+            const projBCenterX = projBLength / 2;
+            
+            if (projBLength > 0.1) {
+                projectionB.setAttribute('position', `${projBCenterX} 0 0`);
+                projectionB.setAttribute('height', projBLength);
+                projLabelB.setAttribute('position', `${projBCenterX + 0.3} -0.5 0`);
+            } else {
+                projectionB.setAttribute('height', 0);
+            }
         }
         
         function updateAngle() {

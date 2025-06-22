@@ -189,7 +189,7 @@
 
                 <!-- Vector B group -->
                 <a-entity id="vectorBGroup">
-                    <a-cylinder id="vectorB" position="0 1.5 0" rotation="0 0 0" radius="0.05" height="3" color="#2196F3"></a-cylinder>
+                    <a-cylinder id="vectorB" position="0 0 0" rotation="0 0 0" radius="0.05" height="3" color="#2196F3"></a-cylinder>
                     <a-cone id="arrowB" position="0 3 0" rotation="0 0 0" radius-bottom="0.15" height="0.4" color="#1565C0"></a-cone>
                     <a-text id="labelB" value="b⃗" position="0.3 3.3 0" color="#2196F3" scale="2 2 2" rotation="90 0 0"></a-text>
                     <a-text id="coordsB" value="(0.0, 3.0)" position="0.3 2.7 0" color="#2196F3" scale="1.5 1.5 1.5" rotation="90 0 0"></a-text>
@@ -351,13 +351,16 @@
             const vectorBCenterX = (vectorBData.length / 2) * Math.cos(angleRad);
             const vectorBCenterY = (vectorBData.length / 2) * Math.sin(angleRad);
             
+            // Изменения здесь: вектор B теперь правильно привязан к началу координат
             vectorB.setAttribute('position', `${vectorBCenterX} ${vectorBCenterY} 0`);
-            vectorB.setAttribute('rotation', `0 0 ${90 - vectorBData.angle}`);
+            vectorB.setAttribute('rotation', `0 0 ${-vectorBData.angle}`);
             vectorB.setAttribute('height', vectorBData.length);
+            
             arrowB.setAttribute('position', `${vectorBEndX} ${vectorBEndY} 0`);
-            arrowB.setAttribute('rotation', `0 0 ${90 - vectorBData.angle}`);
-            labelB.setAttribute('position', `${vectorBEndX + 0.3} ${vectorBEndY + 0.2} 0`);
-            coordsB.setAttribute('position', `${vectorBEndX + 0.3} ${vectorBEndY - 0.2} 0`);
+            arrowB.setAttribute('rotation', `0 0 ${-vectorBData.angle}`);
+            
+            labelB.setAttribute('position', `${vectorBEndX + 0.3 * Math.cos(angleRad)} ${vectorBEndY + 0.3 * Math.sin(angleRad)} 0`);
+            coordsB.setAttribute('position', `${vectorBEndX + 0.3 * Math.cos(angleRad)} ${vectorBEndY - 0.3 * Math.sin(angleRad)} 0`);
             coordsB.setAttribute('value', `(${vectorBEndX.toFixed(1)}, ${vectorBEndY.toFixed(1)})`);
             
             // Обновление проекций и перпендикуляров
@@ -419,7 +422,7 @@
             
             if (Math.abs(projAOnBLength) > 0.1) {
                 projectionA.setAttribute('position', `${projAOnBPosX} ${projAOnBPosY} 0`);
-                projectionA.setAttribute('rotation', `0 0 ${90 - vectorBData.angle}`);
+                projectionA.setAttribute('rotation', `0 0 ${-vectorBData.angle}`);
                 projectionA.setAttribute('height', Math.abs(projAOnBLength));
                 projectionA.setAttribute('visible', true);
                 
@@ -430,7 +433,7 @@
                 
                 if (perpAHeight > 0.1) {
                     perpendicularA.setAttribute('position', `${perpAX} ${perpAY} 0`);
-                    perpendicularA.setAttribute('rotation', `0 0 ${90 - vectorBData.angle}`);
+                    perpendicularA.setAttribute('rotation', `0 0 ${-vectorBData.angle}`);
                     perpendicularA.setAttribute('height', perpAHeight);
                     perpendicularA.setAttribute('visible', true);
                 } else {
